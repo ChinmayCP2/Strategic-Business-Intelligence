@@ -1,0 +1,4 @@
+django
+pylint
+psycopg2-binary
+requests
