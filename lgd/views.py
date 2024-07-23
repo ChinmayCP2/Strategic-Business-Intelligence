@@ -1,6 +1,5 @@
-from django.db.utils import IntegrityError
+'''http response'''
 from django.http import HttpResponse
-from django.core.exceptions import MultipleObjectsReturned
 import requests
 from .models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 
@@ -22,7 +21,8 @@ def load_state(request):
                 "stateNameEnglish": state["stateNameEnglish"],
                 "stateNameLocal": state["stateNameLocal"],
                 }
-            context = StateModel.objects.create(**states) # pylint: disable=maybe-no-member           
+            context = StateModel.objects.create(**states) # pylint: disable=maybe-no-member  
+            context.save()       
         # r.text, r.content, r.url, r.json
         # loading district data
         return HttpResponse("state data saved")        
@@ -51,8 +51,9 @@ def load_district(request):
                     "stateCode" : state_instance
                     }
                 context = DistrictModel.objects.create(**districts) # pylint: disable=maybe-no-member
+                context.save()
                     # print('district data saved')
-        else: 
+        else:
             print('district data not saved')
             return HttpResponse("district data not saved")
     return HttpResponse("district data saved")
@@ -81,6 +82,7 @@ def load_sub_district(request):
                     "districtCode" : district_instance
                     }
                 context = SubDistrictModel.objects.create(**subDistricts) # pylint: disable=maybe-no-member
+                context.save()
                 print('district data saved')
         else: 
             print('district data not saved')
@@ -95,15 +97,16 @@ def load_village(request):
     for subDistrict in subDistricts:
         try:
             r = requests.post(f"https://lgdirectory.gov.in/webservices/lgdws/villageList?subDistrictCode={subDistrict['subDistrictCode']}", 
-                            data=request.POST)
+                            data=request.POST) 
+
         except: 
             print("Timed out")
         if r.status_code == 200:
             data = r.json()
+                # print(village)
             subDistrict_instance = SubDistrictModel.objects.filter(subDistrictCode=subDistrict['subDistrictCode']).first() # pylint: disable=maybe-no-member   
-            print(subDistrict_instance)
+            # print(subDistrict_instance)
             for village in data:
-                print(village)
                 villages = {
                     "villageCode": village["villageCode"],
                     "villageNameEnglish": village["villageNameEnglish"],
@@ -111,9 +114,10 @@ def load_village(request):
                     "subSidtrictCode" : subDistrict_instance
                     }
                 context = VillageModel.objects.create(**villages) # pylint: disable=maybe-no-member
+                context.save()
                 print('village data saved')
         else: 
-            print('district data not saved')
+            # print('district data not saved')
             return HttpResponse("subdistrict data not saved")
     return HttpResponse("subdistrict data saved")
 
