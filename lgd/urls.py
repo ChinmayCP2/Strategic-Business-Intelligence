@@ -1,5 +1,8 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('', views.reload, name = "get_states"),
+    path('state/', views.load_state, name = "get_states"),
+    path('dist/', views.load_district, name = "get_districts"),
+    path('subdist/', views.load_sub_district, name = "get_districts"),
+    path('village/', views.load_village, name = "get_village"),
 ]

@@ -24,7 +24,9 @@ class StateModel(TimeStampedModel):
     stateNameLocal = models.CharField(max_length=300,blank=True, null=True)
 
     def __str__(self):
-        return self.stateNameEnglish
+    # the self.stateNameEnglish can be none so a empty string is attached
+        return self.stateNameEnglish + ""
+         
 
 
 class DistrictModel(TimeStampedModel):
@@ -39,7 +41,8 @@ class DistrictModel(TimeStampedModel):
     stateCode = models.ForeignKey(StateModel, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.districtNameEnglish
+    # the self.districtNameEnglish can be none so a empty string is attached
+        return self.districtNameEnglish + ""
 
 class SubDistrictModel(TimeStampedModel):
     '''
@@ -52,7 +55,8 @@ class SubDistrictModel(TimeStampedModel):
     subDistrictNameLocal = models.CharField(max_length=300,blank=True, null=True)
     districtCode = models.ForeignKey(DistrictModel, on_delete=models.CASCADE)
     def __str__(self):
-        return self.subDistrictNameEnglish
+    # the self.subDistrictNameEnglish can be none so a empty string is attached
+        return self.subDistrictNameEnglish + ""
     
 class VillageModel(TimeStampedModel):
     '''
@@ -65,5 +69,5 @@ class VillageModel(TimeStampedModel):
     villageNameLocal = models.CharField(max_length=300,blank=True, null=True)
     subSidtrictCode = models.ForeignKey(SubDistrictModel, on_delete=models.CASCADE)
     def __str__(self):
-        return self.villageNameEnglish
-    
+    # the self.villageNameEnglish can be none so a empty string is attached
+        return self.villageNameEnglish + ""
