@@ -1,8 +1,9 @@
-'''http response'''
+# '''http response'''
 import os
 import logging
 from dotenv import load_dotenv
 import requests
+# from django.views import View
 from django.http import HttpResponse
 from .models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 
@@ -54,7 +55,7 @@ def load_district(request):
         if r.status_code == 200:
             data = r.json()
             state_instance = StateModel.objects.filter(stateCode=state['stateCode']).first() # pylint: disable=maybe-no-member   
-            print(state_instance)
+            # print(state_instance)
             for district in data:
                 districts = {
                     "districtCode": district["districtCode"],
@@ -160,7 +161,6 @@ def reset_db(request,region):
         logging.error("user entered invalid region")
         return HttpResponse("region not specified")
     return HttpResponse("database reset done")
-    # print('database reset')
 
 # class Load_region(View):
 #     '''load Region data'''
@@ -190,6 +190,13 @@ def reset_db(request,region):
 #         return HttpResponse(r.text)
 
 # class Load(Load_region):
+#     '''load data'''
+#     def get(self, request, *args, **kwargs):
+#         url = "https://lgdirectory.gov.in/webservices/lgdws/stateList"
+#         fields = ["stateCode", "stateNameEnglish", "stateNameLocal"]
+#         # kwargs.update({"url" : url})
+#         return super().get(request, *fields, url=url, **kwargs)
+
 #     '''load data'''
 #     def get(self, request, *args, **kwargs):
 #         url = "https://lgdirectory.gov.in/webservices/lgdws/stateList"
