@@ -1,17 +1,25 @@
 '''http response'''
-from django.http import HttpResponse
+import os
+import logging
+from dotenv import load_dotenv
 import requests
+from django.http import HttpResponse
 from .models import StateModel, DistrictModel, SubDistrictModel, VillageModel
+
+load_dotenv()
+logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w', 
+                    format="%(asctime)s - %(levelname)s - %(message)s")
 
 def load_state(request):
     '''function to load the states'''
     StateModel.objects.all().delete() # pylint: disable=maybe-no-member
     # delete privious data
     try:
-        r = requests.post('https://lgdirectory.gov.in/webservices/lgdws/stateList', 
+        r = requests.post(os.getenv('STATE_ENDPOINT'), 
                           data=request.POST, timeout=10)
     except requests.exceptions.Timeout:
-        print("Timed out")
+        # print("Timed out")
+        logging.error("Time out",exc_info=True)
     if r.status_code == 200:
         data = r.json()
         # print(data)      
@@ -25,20 +33,24 @@ def load_state(request):
             context.save()       
         # r.text, r.content, r.url, r.json
         # loading district data
-        return HttpResponse("state data saved")        
+        logging.info('State Data saved')
+        return HttpResponse("state data saved") 
+           
+    logging.error('state data not saved')
     return HttpResponse('Could not save data')
 
 def load_district(request):
     '''loads district data'''
-    DistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
+    # DistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
     states = StateModel.objects.values("stateCode").distinct() # pylint: disable=maybe-no-member
     print(states)
     for state in states:
         try:
-            r = requests.post(f"https://lgdirectory.gov.in/webservices/lgdws/districtList?stateCode={state['stateCode']}", 
+            r = requests.post(os.getenv('DISTRICT_ENDPOINT') + f"{state['stateCode']}", 
                             data=request.POST, timeout=100000)
         except requests.exceptions.Timeout: 
-                print("Timed out")
+                # print("Timed out")
+                logging.error("Time out",exc_info=True)
         if r.status_code == 200:
             data = r.json()
             state_instance = StateModel.objects.filter(stateCode=state['stateCode']).first() # pylint: disable=maybe-no-member   
@@ -55,26 +67,29 @@ def load_district(request):
                     # print('district data saved')
         else:
             print('district data not saved')
+            logging.error('district Data not saved')
             return HttpResponse("district data not saved")
+    logging.info('District Data saved')
     return HttpResponse("district data saved")
             
 def load_sub_district(request):
     '''loads subdistrict data'''
-    SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
+    # SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
     districts = DistrictModel.objects.values("districtCode").distinct() # pylint: disable=maybe-no-member
     # print(districts)
     for district in districts:
         try:
-            r = requests.post(f"https://lgdirectory.gov.in/webservices/lgdws/subdistrictList?districtCode={district['districtCode']}", 
+            r = requests.post( os.getenv('SUBDISTRICT_ENDPOINT') + f"{district['districtCode']}", 
                             data=request.POST)
         except: 
-                print("Timed out")
+                # print("Timed out")
+                logging.error("Time out",exc_info=True)
         if r.status_code == 200:
             data = r.json()
             district_instance = DistrictModel.objects.filter(districtCode=district['districtCode']).first() # pylint: disable=maybe-no-member   
-            # print(district_instance)
+            print(district_instance)
             for subDistrict in data:
-                # print(subDistrict)
+                print(subDistrict)
                 subDistricts = {
                     "subDistrictCode": subDistrict["subdistrictCode"],
                     "subDistrictNameEnglish": subDistrict["subdistrictNameEnglish"],
@@ -84,23 +99,27 @@ def load_sub_district(request):
                 context = SubDistrictModel.objects.create(**subDistricts) # pylint: disable=maybe-no-member
                 context.save()
                 print('district data saved')
+        elif r.status_code == '503':
+            logging.error('Service Unavailable')
         else: 
-            print('district data not saved')
+            print('subdistrict data not saved')
+            logging.info('subdistrict Data saved')
             return HttpResponse("subdistrict data not saved")
+    logging.info('subdistrict Data saved')
     return HttpResponse("subdistrict data saved")
 
 def load_village(request):
     '''loads village data'''
-    VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
+    # VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
     subDistricts = SubDistrictModel.objects.values("subDistrictCode").distinct() # pylint: disable=maybe-no-member
     # print(subDistricts)
     for subDistrict in subDistricts:
         try:
-            r = requests.post(f"https://lgdirectory.gov.in/webservices/lgdws/villageList?subDistrictCode={subDistrict['subDistrictCode']}", 
-                            data=request.POST) 
+            r = requests.post(os.getenv('VILLAGE_ENDPOINT') + f"{subDistrict['subDistrictCode']}", data=request.POST) 
 
         except: 
-            print("Timed out")
+            # print("Timed out")
+            logging.error("Time out",exc_info=True)
         if r.status_code == 200:
             data = r.json()
                 # print(village)
@@ -117,9 +136,31 @@ def load_village(request):
                 context.save()
                 print('village data saved')
         else: 
+            logging.error("Status code returned is not 200 error in the request")
             # print('district data not saved')
-            return HttpResponse("subdistrict data not saved")
+            return HttpResponse("subdistrict data not saved, error occured")
+    logging.info('village data saved')       
     return HttpResponse("subdistrict data saved")
+
+def reset_db(request,region):
+    '''resets the database'''
+    if region == 'district':
+        DistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
+        logging.info("%s reset done", region)
+    elif region == 'state':
+        StateModel.objects.all().delete() # pylint: disable=maybe-no-member
+        logging.info("%s reset done", region)
+    elif region == 'subdistrict':
+        SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
+        logging.info("%s reset done", region)
+    elif region == 'village':
+        VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
+        logging.info("%s reset done", region)
+    else:
+        logging.error("user entered invalid region")
+        return HttpResponse("region not specified")
+    return HttpResponse("database reset done")
+    # print('database reset')
 
 # class Load_region(View):
 #     '''load Region data'''
