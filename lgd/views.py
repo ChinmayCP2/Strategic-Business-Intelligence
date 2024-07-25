@@ -55,7 +55,7 @@ def load_district(request):
                 district.pop("sscode")
             district_instances = [DistrictModel( stateCode=state, **district) for district in data]
             # print(data)
-            DistrictModel.objects.bulk_create(district_instances) # pylint: disable=maybe-no-member
+            DistrictModel.objects.bulk_create(district_instances, ignore_conflicts=True) # pylint: disable=maybe-no-member
             # print('district data saved')
         else:
             print('district data not saved')
@@ -86,12 +86,12 @@ def load_sub_district(request):
             subdistrict_instances = [SubDistrictModel(districtCode = district, stateCode = district.stateCode,
                                                        **subdistrict) for subdistrict in data]
             # print(data)
-            SubDistrictModel.objects.bulk_create(subdistrict_instances) # pylint: disable=maybe-no-member
+            SubDistrictModel.objects.bulk_create(subdistrict_instances, ignore_conflicts=True) # pylint: disable=maybe-no-member
                 # print('subdistrict data saved')
         elif request_to_lgd.status_code == '503':
             logging.error('Service Unavailable')
         else: 
-            print('subdistrict data not saved')
+            # print('subdistrict data not saved')
             logging.info('subdistrict Data saved')
             return HttpResponse("subdistrict data not saved")
     logging.info('subdistrict Data saved')
@@ -112,9 +112,9 @@ def load_village(request):
             logging.error("Time out",exc_info=True)
         if request_to_lgd.status_code == 200:
             data = request_to_lgd.json()
-            print(data)
+            # print(data)
             for village in data:
-                print(village)
+                # print(village)
                 village.pop("census2011Code")
                 village.pop("census2001Code")
                 village.pop("sscode")
@@ -122,9 +122,9 @@ def load_village(request):
                                                stateCode = subdistrict.districtCode.stateCode,
                                                subdistrictCode = subdistrict,
                                                  **village) for village in data]
-            VillageModel.objects.bulk_create(village_instances)
+            VillageModel.objects.bulk_create(village_instances, ignore_conflicts=True)
                 
-            print('village data saved')
+            # print('village data saved')
         else: 
             logging.error("Status code returned is not 200 error in the request")
             # print('district data not saved')
