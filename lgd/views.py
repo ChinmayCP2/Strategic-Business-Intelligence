@@ -12,59 +12,51 @@ logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w',
 
 def load_state(request):
     '''function to load the states'''
-    StateModel.objects.all().delete() # pylint: disable=maybe-no-member
-    # delete privious data
+
     try:
-        r = requests.post(os.getenv('STATE_ENDPOINT'), 
+        request_to_lgd = requests.post(os.getenv('STATE_ENDPOINT'), 
                           data=request.POST, timeout=10)
     except requests.exceptions.Timeout:
         # print("Timed out")
         logging.error("Time out",exc_info=True)
-    if r.status_code == 200:
-        data = r.json()
-        # print(data)      
+    if request_to_lgd.status_code == 200:
+        data = request_to_lgd.json()
         for state in data:
-            states = {
-                "stateCode": state["stateCode"],
-                "stateNameEnglish": state["stateNameEnglish"],
-                "stateNameLocal": state["stateNameLocal"],
-                }
-            context = StateModel.objects.create(**states) # pylint: disable=maybe-no-member  
-            context.save()       
+            state.pop("census2011Code")
+            state.pop("census2001Code")
+        state_instances = [StateModel(**state) for state in data]
+        # print(data)
+
+        StateModel.objects.bulk_create(state_instances, ignore_conflicts=True) # pylint: disable=maybe-no-member        
         # r.text, r.content, r.url, r.json
         # loading district data
         logging.info('State Data saved')
-        return HttpResponse("state data saved") 
+        return HttpResponse("state data saved")
            
     logging.error('state data not saved')
     return HttpResponse('Could not save data')
 
 def load_district(request):
     '''loads district data'''
-    # DistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
-    states = StateModel.objects.values("stateCode").distinct() # pylint: disable=maybe-no-member
-    print(states)
+    states = StateModel.objects.all().distinct() # pylint: disable=maybe-no-member
+    # print(states)
     for state in states:
         try:
-            r = requests.post(os.getenv('DISTRICT_ENDPOINT') + f"{state['stateCode']}", 
+            request_to_lgd = requests.post(os.getenv('DISTRICT_ENDPOINT') + f"{state.stateCode}", 
                             data=request.POST, timeout=100000)
-        except requests.exceptions.Timeout: 
+        except requests.exceptions.Timeout:
                 # print("Timed out")
                 logging.error("Time out",exc_info=True)
-        if r.status_code == 200:
-            data = r.json()
-            state_instance = StateModel.objects.filter(stateCode=state['stateCode']).first() # pylint: disable=maybe-no-member   
-            print(state_instance)
+        if request_to_lgd.status_code == 200:
+            data = request_to_lgd.json()
             for district in data:
-                districts = {
-                    "districtCode": district["districtCode"],
-                    "districtNameEnglish": district["districtNameEnglish"],
-                    "districtNameLocal": district["districtNameLocal"],
-                    "stateCode" : state_instance
-                    }
-                context = DistrictModel.objects.create(**districts) # pylint: disable=maybe-no-member
-                context.save()
-                    # print('district data saved')
+                district.pop("census2011Code")
+                district.pop("census2001Code")
+                district.pop("sscode")
+            district_instances = [DistrictModel( stateCode=state, **district) for district in data]
+            # print(data)
+            DistrictModel.objects.bulk_create(district_instances) # pylint: disable=maybe-no-member
+            # print('district data saved')
         else:
             print('district data not saved')
             logging.error('district Data not saved')
@@ -75,31 +67,28 @@ def load_district(request):
 def load_sub_district(request):
     '''loads subdistrict data'''
     # SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
-    districts = DistrictModel.objects.values("districtCode").distinct() # pylint: disable=maybe-no-member
+    districts = DistrictModel.objects.all().distinct() # pylint: disable=maybe-no-member
     # print(districts)
     for district in districts:
         try:
-            r = requests.post( os.getenv('SUBDISTRICT_ENDPOINT') + f"{district['districtCode']}", 
+            request_to_lgd = requests.post( os.getenv('SUBDISTRICT_ENDPOINT') + f"{district.districtCode}", 
                             data=request.POST)
         except: 
                 # print("Timed out")
                 logging.error("Time out",exc_info=True)
-        if r.status_code == 200:
-            data = r.json()
-            district_instance = DistrictModel.objects.filter(districtCode=district['districtCode']).first() # pylint: disable=maybe-no-member   
-            print(district_instance)
-            for subDistrict in data:
-                print(subDistrict)
-                subDistricts = {
-                    "subDistrictCode": subDistrict["subdistrictCode"],
-                    "subDistrictNameEnglish": subDistrict["subdistrictNameEnglish"],
-                    "subDistrictNameLocal": subDistrict["subdistrictNameLocal"],
-                    "districtCode" : district_instance
-                    }
-                context = SubDistrictModel.objects.create(**subDistricts) # pylint: disable=maybe-no-member
-                context.save()
-                print('district data saved')
-        elif r.status_code == '503':
+        if request_to_lgd.status_code == 200:
+            data = request_to_lgd.json()
+            # print(data)
+            for subdistrict in data:
+                subdistrict.pop("census2011Code")
+                subdistrict.pop("census2001Code")
+                subdistrict.pop("sscode")
+            subdistrict_instances = [SubDistrictModel(districtCode = district, stateCode = district.stateCode,
+                                                       **subdistrict) for subdistrict in data]
+            # print(data)
+            SubDistrictModel.objects.bulk_create(subdistrict_instances) # pylint: disable=maybe-no-member
+                # print('subdistrict data saved')
+        elif request_to_lgd.status_code == '503':
             logging.error('Service Unavailable')
         else: 
             print('subdistrict data not saved')
@@ -111,30 +100,31 @@ def load_sub_district(request):
 def load_village(request):
     '''loads village data'''
     # VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
-    subDistricts = SubDistrictModel.objects.values("subDistrictCode").distinct() # pylint: disable=maybe-no-member
+    subdistricts = SubDistrictModel.objects.all().distinct() # pylint: disable=maybe-no-member
     # print(subDistricts)
-    for subDistrict in subDistricts:
+    for subdistrict in subdistricts:
         try:
-            r = requests.post(os.getenv('VILLAGE_ENDPOINT') + f"{subDistrict['subDistrictCode']}", data=request.POST) 
+            request_to_lgd = requests.post(os.getenv('VILLAGE_ENDPOINT') + f"{subdistrict.subdistrictCode}",
+                                            data=request.POST) 
 
         except: 
             # print("Timed out")
             logging.error("Time out",exc_info=True)
-        if r.status_code == 200:
-            data = r.json()
-                # print(village)
-            subDistrict_instance = SubDistrictModel.objects.filter(subDistrictCode=subDistrict['subDistrictCode']).first() # pylint: disable=maybe-no-member   
-            # print(subDistrict_instance)
+        if request_to_lgd.status_code == 200:
+            data = request_to_lgd.json()
+            print(data)
             for village in data:
-                villages = {
-                    "villageCode": village["villageCode"],
-                    "villageNameEnglish": village["villageNameEnglish"],
-                    "villageNameLocal": village["villageNameLocal"],
-                    "subSidtrictCode" : subDistrict_instance
-                    }
-                context = VillageModel.objects.create(**villages) # pylint: disable=maybe-no-member
-                context.save()
-                print('village data saved')
+                print(village)
+                village.pop("census2011Code")
+                village.pop("census2001Code")
+                village.pop("sscode")
+            village_instances = [VillageModel(districtCode = subdistrict.districtCode,
+                                               stateCode = subdistrict.districtCode.stateCode,
+                                               subdistrictCode = subdistrict,
+                                                 **village) for village in data]
+            VillageModel.objects.bulk_create(village_instances)
+                
+            print('village data saved')
         else: 
             logging.error("Status code returned is not 200 error in the request")
             # print('district data not saved')
@@ -144,13 +134,13 @@ def load_village(request):
 
 def reset_db(request,region):
     '''resets the database'''
-    if region == 'district':
+    if region == 'dist':
         DistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
         logging.info("%s reset done", region)
     elif region == 'state':
         StateModel.objects.all().delete() # pylint: disable=maybe-no-member
         logging.info("%s reset done", region)
-    elif region == 'subdistrict':
+    elif region == 'subdist':
         SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
         logging.info("%s reset done", region)
     elif region == 'village':

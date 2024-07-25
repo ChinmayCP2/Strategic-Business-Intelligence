@@ -1,5 +1,6 @@
 '''models for the lgd app'''
 from django.db import models
+from django.db.models import UniqueConstraint
 
 # Create your models here.
 class TimeStampedModel(models.Model):
@@ -26,7 +27,11 @@ class StateModel(TimeStampedModel):
     def __str__(self):
     # the self.stateNameEnglish can be none so a empty string is attached
         return self.stateNameEnglish + ""
-         
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['stateCode'], name='unique state')
+        ]
+
 
 
 class DistrictModel(TimeStampedModel):
@@ -43,20 +48,31 @@ class DistrictModel(TimeStampedModel):
     def __str__(self):
     # the self.districtNameEnglish can be none so a empty string is attached
         return self.districtNameEnglish + ""
+    
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['districtCode'], name='unique district')
+        ]
 
 class SubDistrictModel(TimeStampedModel):
     '''
     Holds District related Information
     '''
-    subDistrictCode = models.IntegerField(blank=True, null=True)
+    subdistrictCode = models.IntegerField(blank=True, null=True)
     # census2001code = models.CharField(max_length=200,blank=True, null=True)
     # census2011code = models.CharField(max_length=200,blank=True, null=True)
-    subDistrictNameEnglish = models.CharField(max_length=300,blank=True, null=True)
-    subDistrictNameLocal = models.CharField(max_length=300,blank=True, null=True)
+    subdistrictNameEnglish = models.CharField(max_length=300,blank=True, null=True)
+    subdistrictNameLocal = models.CharField(max_length=300,blank=True, null=True)
     districtCode = models.ForeignKey(DistrictModel, on_delete=models.CASCADE)
+    stateCode = models.ForeignKey(StateModel, on_delete=models.CASCADE)
     def __str__(self):
     # the self.subDistrictNameEnglish can be none so a empty string is attached
-        return self.subDistrictNameEnglish + ""
+        return self.subdistrictNameEnglish + ""
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['subdistrictCode'], name='unique subdistrict')
+        ]
+    
     
 class VillageModel(TimeStampedModel):
     '''
@@ -67,7 +83,14 @@ class VillageModel(TimeStampedModel):
     # census2011code = models.CharField(max_length=200,blank=True, null=True)
     villageNameEnglish = models.CharField(max_length=300,blank=True, null=True)
     villageNameLocal = models.CharField(max_length=300,blank=True, null=True)
-    subSidtrictCode = models.ForeignKey(SubDistrictModel, on_delete=models.CASCADE)
+    subdistrictCode = models.ForeignKey(SubDistrictModel, on_delete=models.CASCADE)
+    districtCode = models.ForeignKey(DistrictModel, on_delete=models.CASCADE)
+    stateCode = models.ForeignKey(StateModel, on_delete=models.CASCADE)
     def __str__(self):
     # the self.villageNameEnglish can be none so a empty string is attached
         return self.villageNameEnglish + ""
+    
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['villageCode'], name='unique village')
+        ]
