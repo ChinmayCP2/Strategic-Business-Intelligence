@@ -1393,7 +1393,7 @@
           }
         },
         "displayName": {
-          "text": "Keya Hospital",
+          "text": "Keya hotel",
           "languageCode": "en"
         },
         "primaryType": "hospital",
@@ -2760,7 +2760,7 @@
           }
         },
         "displayName": {
-          "text": "Pavan Hospital",
+          "text": "Pavan medical",
           "languageCode": "en"
         },
         "primaryType": "hospital",
@@ -3860,7 +3860,7 @@
           }
         },
         "displayName": {
-          "text": "Care General Hospital",
+          "text": "Care General healthcare",
           "languageCode": "en"
         },
         "primaryType": "hospital",
