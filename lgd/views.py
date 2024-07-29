@@ -72,10 +72,10 @@ def load_sub_district(request):
     for district in districts:
         try:
             request_to_lgd = requests.post( os.getenv('SUBDISTRICT_ENDPOINT') + f"{district.districtCode}", 
-                            data=request.POST)
-        except: 
+                            data=request.POST, timeout=None)
+        except:
                 # print("Timed out")
-                logging.error("Time out",exc_info=True)
+                logging.error("Exception in sending the subdistrict request",exc_info=True)
         if request_to_lgd.status_code == 200:
             data = request_to_lgd.json()
             # print(data)
@@ -105,11 +105,9 @@ def load_village(request):
     for subdistrict in subdistricts:
         try:
             request_to_lgd = requests.post(os.getenv('VILLAGE_ENDPOINT') + f"{subdistrict.subdistrictCode}",
-                                            data=request.POST) 
-
+                                            data=request.POST, timeout=None) 
         except: 
-            # print("Timed out")
-            logging.error("Time out",exc_info=True)
+            logging.error("Exception in sending the village request",exc_info=True)
         if request_to_lgd.status_code == 200:
             data = request_to_lgd.json()
             # print(data)
@@ -130,7 +128,7 @@ def load_village(request):
             # print('district data not saved')
             return HttpResponse("subdistrict data not saved, error occured")
     logging.info('village data saved')       
-    return HttpResponse("subdistrict data saved")
+    return HttpResponse("village data saved")
 
 def reset_db(request,region):
     '''resets the database'''
