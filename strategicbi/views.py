@@ -1,8 +1,8 @@
 # from django.http import JsonResponse
 import os
-import requests
 import json
 import logging
+import requests
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
@@ -27,9 +27,10 @@ def send_json_response(request):
     unnecessary_fields = ['utcOffsetMinutes', 'adrFormatAddress', 'iconBackgroundColor',
                    'iconMaskBaseUri', 'internationalPhoneNumber', 'primaryTypeDisplayName',
                      'addressComponents', 'shortFormattedAddress','photos', 'internationalPhoneNumber']
-    neccessary_fields = ['places', 'displayName', 'primaryType', 
+    neccessary_fields = ['places', 'displayName', 'primaryType',
                       'formattedAddress', 'location', 'rating', 
-                      'googleMapsUri', 'businessStatus', 'userRatingCount'];
+                      'googleMapsUri', 'businessStatus', 'userRatingCount', 
+                      'stateCode', 'districtCode','subdistrictCode','vilageCode' ]
 
     for place in data['places']:
         for element in unnecessary_fields:
@@ -37,7 +38,7 @@ def send_json_response(request):
                 try: 
                     del place[element]
                 except KeyError:
-                    pass 
+                    pass
         generate_id(place)
         generate_primary_type(place)
         # Iterating through the places
@@ -58,7 +59,7 @@ def get_json(request):
         logging.error("Exception while getting the json data",exc_info=True)
     if request_to_get_json_data.status_code == 200:
         data = request_to_get_json_data.json()
-        print(data)
+        # print(data)
         for place in data['places']: 
                 # Iterating through the places   
             JSONDataModel.objects.get_or_create(jsonData = place) # pylint: disable=maybe-no-member
@@ -77,7 +78,8 @@ def extract_json(request):
     for place in places:       
         DataModel.objects.get_or_create(id = place.jsonData['id'], # pylint: disable=maybe-no-member 
                                         name= place.jsonData['displayName']['text'],  
-                                        catagory = place.jsonData['primaryType'],
+                                        catagory = place.jsonData['catagory'],
+                                        primaryType = place.jsonData['primaryType'],
                                         formattedAddress = place.jsonData['formattedAddress'],
                                         locationLongitude = place.jsonData['location']['longitude'],
                                         locationLatitude = place.jsonData['location']['latitude'],
@@ -86,7 +88,10 @@ def extract_json(request):
                                         googleMapsUri = place.jsonData['googleMapsUri'],
                                         businessStatus = place.jsonData['businessStatus'],
                                         userRatingCount = place.jsonData['userRatingCount'],
-
+                                        stateCode = place.jsonData['stateCode'],
+                                        districtCode = place.jsonData['districtCode'],
+                                        subdistrictCode = place.jsonData['subdistrictCode'],
+                                        villageCode = place.jsonData['villageCode'],
                                         # userRatingCount = None
                                         # accessibilityOptions = []
                                         )

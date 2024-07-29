@@ -2,6 +2,10 @@
     "places": [
       {
         "id": "ChIJ00x-L_pbXjkR54WJ0u9GCIE",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
         "name": "places/ChIJ00x-L_pbXjkR54WJ0u9GCIE",
         "types": [
           "hospital",
@@ -339,13 +343,13 @@
           "languageCode": "en-US"
         },
         "internationalPhoneNumber": "+91 81286 19530"
-        // "stateCode" : 1,
-        // "districtCode" : 1,
-        // "subdistrictCode" : 1,
-        // "villageCode" : 1
       },
       {
         "id": "ChIJFXZgHBpbXjkRmTKNSOoEoCE",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
         "name": "places/ChIJFXZgHBpbXjkRmTKNSOoEoCE",
         "types": [
           "hospital",
@@ -592,7 +596,8 @@
           }
         },
         "displayName": {
-          "text": "Amee Multispeciality Hospital",
+
+          "text": "Amee Multispeciality solutions",
           "languageCode": "en"
         },
         "primaryType": "hospital",
@@ -749,6 +754,10 @@
       },
       {
         "id": "ChIJvTWe0T1bXjkRwCz1a66Mhlg",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
         "name": "places/ChIJvTWe0T1bXjkRwCz1a66Mhlg",
         "types": [
           "hospital",
@@ -1134,6 +1143,10 @@
       },
       {
         "id": "ChIJDxMA7ghbXjkR1ydnhxdQzbQ",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
         "name": "places/ChIJDxMA7ghbXjkR1ydnhxdQzbQ",
         "types": [
           "hospital",
@@ -1907,6 +1920,10 @@
       },
       {
         "id": "ChIJoTTMNwtbXjkRVENXPzC8Gng",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
         "name": "places/ChIJoTTMNwtbXjkRVENXPzC8Gng",
         "types": [
           "hospital",
@@ -2684,6 +2701,10 @@
       },
       {
         "id": "ChIJwT6SdRBbXjkRA6MkVlXRNFo",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
         "name": "places/ChIJwT6SdRBbXjkRA6MkVlXRNFo",
         "types": [
           "hospital",
@@ -2835,6 +2856,11 @@
       },
       {
         "id": "ChIJVSwkCwZbXjkRG8kOv2BRoko",
+        "stateCode": 24,
+        "districtCode": 469,
+        "subdistrictCode": null,
+        "villageCode": null,
+        
         "name": "places/ChIJVSwkCwZbXjkRG8kOv2BRoko",
         "types": [
           "hospital",
@@ -3600,6 +3626,10 @@
       },
       {
         "id": "ChIJA4kMSj5bXjkRskC1E0BavYo",
+        "stateCode": 36,
+        "districtCode": 534,
+        "subdistrictCode": 3,
+        "villageCode": null,
         "name": "places/ChIJA4kMSj5bXjkRskC1E0BavYo",
         "types": [
           "hospital",
@@ -3997,6 +4027,10 @@
       },
       {
         "id": "ChIJQRTTWQVbXjkRnxfeIjjURv4",
+        "stateCode": 33,
+        "districtCode": 599,
+        "subdistrictCode": 8,
+        "villageCode": null,
         "name": "places/ChIJQRTTWQVbXjkRnxfeIjjURv4",
         "types": [
           "hospital",
@@ -4760,6 +4794,10 @@
       },
       {
         "id": "ChIJF38IdxpbXjkRxyjOrKIRuSY",
+        "stateCode": 9,
+        "districtCode": 142,
+        "subdistrictCode": 12,
+        "villageCode": null,
         "name": "places/ChIJF38IdxpbXjkRxyjOrKIRuSY",
         "types": [
           "hospital",
@@ -5124,6 +5162,10 @@
       },
       {
         "id": "ChIJ2Z01OwVbXjkRnJPHC0ARwMc",
+        "stateCode": 7,
+        "districtCode": 90,
+        "subdistrictCode": 1,
+        "villageCode": null,
         "name": "places/ChIJ2Z01OwVbXjkRnJPHC0ARwMc",
         "types": [
           "hospital",
@@ -5517,6 +5559,10 @@
       },
       {
         "id": "ChIJV0aDXxpbXjkRsjk_CZryKaA",
+        "stateCode": 19,
+        "districtCode": 366,
+        "subdistrictCode": 4,
+        "villageCode": null,
         "name": "places/ChIJV0aDXxpbXjkRsjk_CZryKaA",
         "types": [
           "hospital",
@@ -5912,6 +5958,10 @@
       },
       {
         "id": "ChIJ4csy26FbXjkRKMYUTHzSWpQ",
+        "stateCode": 27,
+        "districtCode": 521,
+        "subdistrictCode": 15,
+        "villageCode": null,
         "name": "places/ChIJ4csy26FbXjkRKMYUTHzSWpQ",
         "types": [
           "hospital",
@@ -6307,6 +6357,10 @@
       {
         "id": "ChIJy0aV3QhbXjkREz_dU4n8kC0",
         "name": "places/ChIJy0aV3QhbXjkREz_dU4n8kC0",
+        "stateCode": 32,
+        "districtCode": 588,
+        "subdistrictCode": 17,
+        "villageCode": 110,
         "types": [
           "hospital",
           "point_of_interest",
@@ -6704,6 +6758,10 @@
       },
       {
         "id": "ChIJ61tqhRpbXjkRITRs9vhYqKE",
+        "stateCode": 28,
+        "districtCode": 484,
+        "subdistrictCode": 2,
+        "villageCode": 234,
         "name": "places/ChIJ61tqhRpbXjkRITRs9vhYqKE",
         "types": [
           "hospital",
@@ -7272,6 +7330,10 @@
       },
       {
         "id": "ChIJh0pv3hZbXjkR3avELqx79kU",
+        "stateCode": 10,
+        "districtCode": 127,
+        "subdistrictCode": 9,
+        "villageCode": null,
         "name": "places/ChIJh0pv3hZbXjkR3avELqx79kU",
         "types": [
           "hospital",
@@ -7556,6 +7618,10 @@
       },
       {
         "id": "ChIJgW3HTP5bXjkRHZGnKoITuUQ",
+        "stateCode": 24,
+        "districtCode": 477,
+        "subdistrictCode": 11,
+        "villageCode": null,
         "name": "places/ChIJgW3HTP5bXjkRHZGnKoITuUQ",
         "types": [
           "hospital",
@@ -7947,6 +8013,10 @@
       },
       {
         "id": "ChIJL1jo2wBbXjkRtzaiLgAozdI",
+        "stateCode": 24,
+        "districtCode": 490,
+        "subdistrictCode": 10,
+        "villageCode": null,
         "name": "places/ChIJL1jo2wBbXjkRtzaiLgAozdI",
         "types": [
           "hospital",
@@ -8052,6 +8122,10 @@
       },
       {
         "id": "ChIJ_____w9bXjkRpQ3Cw8ibe6c",
+        "stateCode": 24,
+        "districtCode": 477,
+        "subdistrictCode": 11,
+        "villageCode": null,
         "name": "places/ChIJ_____w9bXjkRpQ3Cw8ibe6c",
         "types": [
           "hospital",
