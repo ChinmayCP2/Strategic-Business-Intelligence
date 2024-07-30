@@ -4,7 +4,16 @@
   <form method="POST">
     {% csrf_token %}
     {{form.as_p}}
+    <input type = "submit" value = "Submit">
   </form>
+  {% if data %}
+    <h2>Filtered Data:</h2>
+    <ul>
+    {% for obj in data %}
+        <li>{{ obj.name }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {

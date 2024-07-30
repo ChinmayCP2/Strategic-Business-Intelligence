@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'lgd',
     'strategicbi',
     'frontend',
+    'aggrigations',
 ]
 
 MIDDLEWARE = [

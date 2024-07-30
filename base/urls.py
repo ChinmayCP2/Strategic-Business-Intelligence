@@ -6,4 +6,5 @@ urlpatterns = [
     path('',include('frontend.urls')),
     path('lgd/', include('lgd.urls')),
     path('bi/', include('strategicbi.urls')),
+    path('agg/', include('aggrigations.urls')),
 ] 
