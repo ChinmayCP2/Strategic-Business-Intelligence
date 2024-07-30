@@ -5,8 +5,10 @@ import logging
 import requests
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+# from django.middleware.csrf import get_token
 from dotenv import load_dotenv
-from .models import JSONDataModel, DataModel
+from lgd.models import DistrictModel
+from .models import JSONDataModel, DataModel, CatagoryModel
 from .generate import generate_id, generate_primary_type
 # Create your views here.
 load_dotenv()
@@ -16,6 +18,8 @@ logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w',
 @csrf_exempt
 def send_json_response(request):
     '''Resource'''
+    # csrf_token = get_token(request)
+    # csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
     try:
         with open(os.getenv('JSON_FILE'), encoding="utf-8") as json_file:
             data = json.load(json_file)
@@ -43,15 +47,16 @@ def send_json_response(request):
         generate_primary_type(place)
         # Iterating through the places
     
-        for element in neccessary_fields:
-            # Checking if all fields are present if not setting them to Null
-            if element not in place:
-                place[element] = None
+        # for element in neccessary_fields:
+        #     # Checking if all fields are present if not setting them to Null
+        #     if element not in place:
+        #         place[element] = None
     return JsonResponse(data , status=200)
 
 
 def get_json(request):
     '''to get json data from the JSON response'''
+
     try:
         request_to_get_json_data = requests.post(os.getenv('CATEGORICAL_DATA'),
                                             data=request.POST, timeout=1000) 
@@ -66,36 +71,36 @@ def get_json(request):
             logging.info('JsonField Saved')
     # places = [JSONDataModel(place) for place in data['places']]
     
-    # print(places)
-    # with open('temp.json', 'w', encoding="utf-8") as f:
-    #     json.dump(data, f)
-    return HttpResponse("data inserted")
-        
-def extract_json(request):
-    '''to store json data into the defined model'''
     places = JSONDataModel.objects.all() # pylint: disable=maybe-no-member   
     # print(places)
-    for place in places:       
-        DataModel.objects.get_or_create(id = place.jsonData['id'], # pylint: disable=maybe-no-member 
-                                        name= place.jsonData['displayName']['text'],  
-                                        catagory = place.jsonData['catagory'],
-                                        primaryType = place.jsonData['primaryType'],
-                                        formattedAddress = place.jsonData['formattedAddress'],
-                                        locationLongitude = place.jsonData['location']['longitude'],
-                                        locationLatitude = place.jsonData['location']['latitude'],
-                                        rating = place.jsonData['rating'],
+    for place in places:
+        place_catagory, created = CatagoryModel.objects.get_or_create(catagory=str(place.jsonData.get('catagory'))) # pylint: disable=maybe-no-member
+        DataModel.objects.get_or_create(id = place.jsonData.get("id"), # pylint: disable=maybe-no-member 
+                                        name= place.jsonData.get('displayName').get('text'),  
+                                        # catagory = place.jsonData.get('catagory'),
+                                        catagory = place_catagory,                                    
+                                        # primaryType = place.jsonData.get('primaryType'),
+                                        formattedAddress = place.jsonData.get('formattedAddress'),
+                                        locationLongitude = place.jsonData.get('location').get('longitude'),
+                                        locationLatitude = place.jsonData.get('location').get('latitude'),
+                                        rating = place.jsonData.get('rating'),
                                         # rating = None,
-                                        googleMapsUri = place.jsonData['googleMapsUri'],
-                                        businessStatus = place.jsonData['businessStatus'],
-                                        userRatingCount = place.jsonData['userRatingCount'],
-                                        stateCode = place.jsonData['stateCode'],
-                                        districtCode = place.jsonData['districtCode'],
-                                        subdistrictCode = place.jsonData['subdistrictCode'],
-                                        villageCode = place.jsonData['villageCode'],
+                                        googleMapsUri = place.jsonData.get('googleMapsUri'),
+                                        businessStatus = place.jsonData.get('businessStatus'),
+                                        userRatingCount = place.jsonData.get('userRatingCount'),
+                                        stateCode = place.jsonData.get('stateCode'),
+                                        districtCode = place.jsonData.get('districtCode'),
+                                        subdistrictCode = place.jsonData.get('subdistrictCode'),
+                                        villageCode = place.jsonData.get('villageCode'),
                                         # userRatingCount = None
                                         # accessibilityOptions = []
                                         )
     logging.info('Extracted Data from JSON')
-    return HttpResponse("data saved")
+    return HttpResponse("data inserted")
+        
+# def extract_json(request):
+#     '''to store json data into the defined model'''
+    
+#     return HttpResponse("data saved")
     
 
