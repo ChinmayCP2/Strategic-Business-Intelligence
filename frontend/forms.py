@@ -10,7 +10,7 @@ class LocationForm(forms.Form):
                                                             }))
     district = forms.ModelChoiceField(queryset=DistrictModel.objects.none(),
                                       widget=forms.Select(attrs={"hx-get": "/load-subdistricts/?district={{ value }}", 
-                                                             "hx-target" : "#id_subdistrict", 
+                                                             "hx-target" : "#id_subdistrict",
                                                             })) # pylint: disable=maybe-no-member
     subdistrict = forms.ModelChoiceField(queryset=SubDistrictModel.objects.none(),
                                          widget=forms.Select(attrs={"hx-get": "/load-villages/?subdistrict={{ value }}", 

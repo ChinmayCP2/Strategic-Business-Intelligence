@@ -6,4 +6,31 @@
     {{form.as_p}}
   </form>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const stateSelect = document.getElementById("id_stateCode");
+      const districtSelect = document.getElementById("id_district");
+      const subdistrictSelect = document.getElementById("id_subdistrict");
+      const villageSelect = document.getElementById("id_village");
+
+      stateSelect.addEventListener("change", function() {
+        resetFieldsBelowDistrict();
+      });
+
+      districtSelect.addEventListener("change", function() {
+        resetFieldsBelowSubdistrict();
+      });
+
+
+      function resetFieldsBelowDistrict() {
+        subdistrictSelect.value = "";
+        villageSelect.value = "";
+      }
+
+      function resetFieldsBelowSubdistrict() {
+        villageSelect.value = "";
+      }
+
+    });
+  </script>
 {% endblock %}
