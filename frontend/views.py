@@ -1,14 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 from lgd.models import DistrictModel, SubDistrictModel, VillageModel
-from .forms import LocationForm
+from .forms import LocationForm, RegistrationForm
 from strategicbi.models import DataModel
 # Create your views here.
 
-def index(request):
+@login_required(login_url='/login')
+def home(request):
     '''index'''
     if request.method == 'POST':
-        form = LocationForm(request.POST)
-        
+        form = LocationForm(request.POST)      
         data = request.POST
         stateCode = data.get('stateCode')
         district = data.get('district')
@@ -25,11 +27,23 @@ def index(request):
             datamodel_objects = datamodel_objects.filter(villageCode=village).values('name')
         print(datamodel_objects)
         context = {'form': form, 'data': datamodel_objects}
-        return render(request, 'index.html', context)
+        return render(request, 'frontend/home.html', context)
             
     form = LocationForm()
     context = {'form': form}
-    return render(request, 'index.html', context)
+    return render(request, 'frontend/home.html', context)
+
+def sign_up(request):
+    if request.method == "POST":
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/home')
+    else:
+        form =  RegistrationForm()
+    return render(request, "registration/signup.html", {"form" : form})
+
 
 def load_districts(request):
     '''dropdown district'''
@@ -37,7 +51,7 @@ def load_districts(request):
     districts = DistrictModel.objects.filter(stateCode = stateCode) # pylint: disable=maybe-no-member
     # print(districts)
     context = {'districts' : districts}
-    return render(request, 'district_options.html', context)
+    return render(request, 'dropdown_options/district_options.html', context)
 
 def load_subdistricts(request):
     '''dropdown of subdistrict'''
@@ -48,7 +62,7 @@ def load_subdistricts(request):
     subdistricts = SubDistrictModel.objects.filter(districtCode = district_code)# pylint: disable=maybe-no-member
     # print(subdistricts)
     context = {'subdistricts' : subdistricts}
-    return render(request, 'subdistrict_options.html', context)
+    return render(request, 'dropdown_options/subdistrict_options.html', context)
 
 def load_villages(request):
     '''dropdown of subdistrict'''
@@ -59,5 +73,5 @@ def load_villages(request):
     villages = VillageModel.objects.filter(subdistrictCode = subdistrict_code)# pylint: disable=maybe-no-member
     # print(villages)
     context = {'villages' : villages}
-    return render(request, 'village_options.html', context)
+    return render(request, 'dropdown_options/village_options.html', context)
 

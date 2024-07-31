@@ -4,10 +4,12 @@ import json
 import logging
 import requests
 from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.decorators import permission_required
 from django.views.decorators.csrf import csrf_exempt
 # from django.middleware.csrf import get_token
 from dotenv import load_dotenv
 from lgd.models import DistrictModel
+from utils.decorators import custom_permission_required
 from .models import JSONDataModel, DataModel, CatagoryModel
 from .generate import generate_id, generate_primary_type
 # Create your views here.
@@ -15,6 +17,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w',
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
+@permission_required('frontend.dataModel_access', raise_exception=True)
 @csrf_exempt
 def send_json_response(request):
     '''Resource'''
@@ -31,10 +34,10 @@ def send_json_response(request):
     unnecessary_fields = ['utcOffsetMinutes', 'adrFormatAddress', 'iconBackgroundColor',
                    'iconMaskBaseUri', 'internationalPhoneNumber', 'primaryTypeDisplayName',
                      'addressComponents', 'shortFormattedAddress','photos', 'internationalPhoneNumber']
-    neccessary_fields = ['places', 'displayName', 'primaryType',
-                      'formattedAddress', 'location', 'rating', 
-                      'googleMapsUri', 'businessStatus', 'userRatingCount', 
-                      'stateCode', 'districtCode','subdistrictCode','vilageCode' ]
+    # neccessary_fields = ['places', 'displayName', 'primaryType',
+    #                   'formattedAddress', 'location', 'rating', 
+    #                   'googleMapsUri', 'businessStatus', 'userRatingCount', 
+    #                   'stateCode', 'districtCode','subdistrictCode','vilageCode' ]
 
     for place in data['places']:
         for element in unnecessary_fields:
@@ -53,7 +56,7 @@ def send_json_response(request):
         #         place[element] = None
     return JsonResponse(data , status=200)
 
-
+@permission_required('frontend.dataModel_access')
 def get_json(request):
     '''to get json data from the JSON response'''
 

@@ -1,5 +1,8 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from lgd.models import StateModel, DistrictModel, SubDistrictModel, VillageModel
+
 
 class LocationForm(forms.Form):
     '''select location form'''
@@ -18,3 +21,10 @@ class LocationForm(forms.Form):
                                                              "hx-target" : "#id_village", 
                                                             })) # pylint: disable=maybe-no-member
     village = forms.ModelChoiceField(queryset=VillageModel.objects.none(),required=False) # pylint: disable=maybe-no-member
+
+class RegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    
+    class Meta:
+        model = User
+        fields = ['username' , 'email', 'password1', 'password2']

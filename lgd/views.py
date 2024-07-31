@@ -4,12 +4,13 @@ import logging
 from dotenv import load_dotenv
 import requests
 from django.http import HttpResponse
+from django.contrib.auth.decorators import permission_required
 from .models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w', 
                     format="%(asctime)s - %(levelname)s - %(message)s")
-
+@permission_required('frontend.lgd_bd_access')
 def load_state(request):
     '''function to load the states'''
 
@@ -36,6 +37,7 @@ def load_state(request):
     logging.error('state data not saved')
     return HttpResponse('Could not save data')
 
+@permission_required('frontend.lgd_bd_access')
 def load_district(request):
     '''loads district data'''
     states = StateModel.objects.all().distinct() # pylint: disable=maybe-no-member
@@ -43,6 +45,7 @@ def load_district(request):
     for state in states:
         try:
             request_to_lgd = requests.post(os.getenv('DISTRICT_ENDPOINT') + f"{state.stateCode}", 
+                           
                             data=request.POST, timeout=100000)
         except requests.exceptions.Timeout:
                 # print("Timed out")
@@ -63,7 +66,8 @@ def load_district(request):
             return HttpResponse("district data not saved")
     logging.info('District Data saved')
     return HttpResponse("district data saved")
-            
+
+@permission_required('frontend.lgd_bd_access')        
 def load_sub_district(request):
     '''loads subdistrict data'''
     # SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
@@ -97,6 +101,7 @@ def load_sub_district(request):
     logging.info('subdistrict Data saved')
     return HttpResponse("subdistrict data saved")
 
+@permission_required('frontend.lgd_bd_access')
 def load_village(request):
     '''loads village data'''
     # VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
@@ -130,6 +135,7 @@ def load_village(request):
     logging.info('village data saved')       
     return HttpResponse("village data saved")
 
+@permission_required('frontend.lgd_bd_access')
 def reset_db(request,region):
     '''resets the database'''
     if region == 'dist':

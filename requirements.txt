@@ -3,4 +3,5 @@ pylint
 psycopg2-binary
 requests
 python-dotenv
-django-debug-toolbar
+crispy-bootstrap5
+# django-debug-toolbar

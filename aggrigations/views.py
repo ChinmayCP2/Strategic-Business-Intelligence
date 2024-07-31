@@ -17,7 +17,7 @@ def load_place_state(request):
         
         if not state:
             return JsonResponse({'error': 'Missing required parameters'}, status=400)
-        fields = [field.name for field in DataModel._meta.get_fields()] 
+        fields = [field.name for field in DataModel._meta.get_fields()]  # pylint: disable=maybe-no-member
         if sorting and sorting in fields and catagory:
             places = DataModel.objects.filter(stateCode=state,  # pylint: disable=maybe-no-member
                                               catagory=catagory).order_by(sorting).values("name") 
@@ -108,10 +108,10 @@ def get_total_user_ratings(request):
             state = data.get('stateCode')
             catagory = data.get('catagory')
             if catagory:
-                total_ratings = DataModel.objects.filter(stateCode=state, catagory=catagory).aggregate(Avg('rating'))
+                total_ratings = DataModel.objects.filter(stateCode=state, catagory=catagory).aggregate(Avg('rating')) # pylint: disable=maybe-no-member
                 print(connection.queries)
             else:
-                total_ratings = DataModel.objects.filter(stateCode = state).aggregate(Avg('rating'))
+                total_ratings = DataModel.objects.filter(stateCode = state).aggregate(Avg('rating')) # pylint: disable=maybe-no-member
             return JsonResponse({'total_ratings': total_ratings}, safe=False)
 
             

@@ -1,10 +1,14 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('index/', views.index, name = "index"),
+    path('home/', views.home, name = "home"),
+    path('login/', auth_views.LoginView.as_view(template_name="registration/login.html",
+                                                 redirect_authenticated_user=True), name='login'),
+    path('signup/', views.sign_up, name = "signup"),
     path('load-districts/', views.load_districts, name='load_districts'),
     path('load-subdistricts/', views.load_subdistricts, name='load_subdistricts'),
     path('load-villages/', views.load_villages, name='load_villages'),
-
+    path('', include('django.contrib.auth.urls')),
 ]
