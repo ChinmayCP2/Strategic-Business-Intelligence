@@ -10,7 +10,7 @@ from .models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 load_dotenv()
 logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w', 
                     format="%(asctime)s - %(levelname)s - %(message)s")
-@permission_required('frontend.lgd_access')
+
 def load_state(request):
     '''function to load the states'''
     print('working')
@@ -27,7 +27,6 @@ def load_state(request):
             state.pop("census2001Code")
         state_instances = [StateModel(**state) for state in data]
         # print(data)
-
         StateModel.objects.bulk_create(state_instances, ignore_conflicts=True) # pylint: disable=maybe-no-member        
         # r.text, r.content, r.url, r.json
         # loading district data
@@ -103,7 +102,7 @@ def load_sub_district(request):
     logging.info('subdistrict Data saved')
     return HttpResponse("subdistrict data saved")
 
-@permission_required('frontend.lgd_access')
+# @permission_required('frontend.lgd_access')
 def load_village(request):
     '''loads village data'''
     print('working')

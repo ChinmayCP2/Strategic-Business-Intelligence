@@ -4,30 +4,40 @@ from django.contrib.auth.models import User
 from lgd.models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 from strategicbi.models import CatagoryModel, DataModel
 
+fields = ['name']
+SORTING_CHOICES = tuple((field, field) for field in fields)
 
 class LocationForm(forms.Form):
     '''select location form'''
     # stateCode = forms.ModelChoiceField(queryset=StateModel.objects.all(),  # pylint: disable=maybe-no-member
     #                                 widget=forms.Select(attrs={"hx-get": "load-districts/","hx-target" : "#id_district", "hx-trigger": "change" }))
     state = forms.ModelChoiceField(queryset=StateModel.objects.all(), 
-                                   required=True, to_field_name='stateCode',
+                                   required=True,
                                    widget=forms.Select(attrs=
                                                        {"hx-get": "/load-districts/?state={{ value }}",
                                                              "hx-target" : "#id_district", 
-                                                            } ))
+                                                            }))
     district = forms.ModelChoiceField(queryset=DistrictModel.objects.none(),
-                                       to_field_name='districtCode' ,required=False,
+                                       required=False, initial= None,
                                        widget=forms.Select(attrs={"hx-get": "/load-subdistricts/?district={{ value }}", 
                                                              "hx-target" : "#id_subdistrict",
                                                             })) # pylint: disable=maybe-no-member
     subdistrict = forms.ModelChoiceField(queryset=SubDistrictModel.objects.none(),
-                                          to_field_name='subdistrictCode' ,required=False,
+                                         required=False, initial= None,
                                          widget=forms.Select(attrs=
                                                              {"hx-get": "/load-villages/?subdistrict={{ value }}", 
                                                              "hx-target" : "#id_village", 
                                                             })) # pylint: disable=maybe-no-member
-    village = forms.ModelChoiceField(queryset=VillageModel.objects.none(),to_field_name='villageCode', required=False) # pylint: disable=maybe-no-member
-    catagory = forms.ModelChoiceField(queryset=CatagoryModel.objects.all(), required=False)
+    village = forms.ModelChoiceField(queryset=VillageModel.objects.none(),
+                                     initial= None, required=False ) # pylint: disable=maybe-no-member
+    catagory = forms.ModelChoiceField(queryset=CatagoryModel.objects.all())
+    sorting = forms.ChoiceField(choices=SORTING_CHOICES, required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        district = cleaned_data.get('district')
+        if district is None:
+            pass
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     
