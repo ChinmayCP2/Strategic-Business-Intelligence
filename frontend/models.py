@@ -17,6 +17,6 @@ class User(AbstractUser):
 
     class Meta:
         permissions = [
-            ("lgd_bd_access", "can access the lgd Models and update the location codes"),
-            ("dataModel_access", "can update places"),
+            ("lgd_access", "lgd data access"),
+            ("data_model_access", "extracted data access"),
         ]

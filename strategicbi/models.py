@@ -1,5 +1,6 @@
 import uuid 
 from django.db import models
+from django.dispatch import receiver
 # from django.db.models import UniqueConstraint
 
 # Create your models here.
@@ -59,3 +60,13 @@ class DataModel(TimeStampedModel):
     villageCode = models.IntegerField( null=True, blank=True, default=-1)
     # accessibilityOptions = models.JSONField()
 
+class CountModel(TimeStampedModel):
+    '''count aggrigation table'''
+    stateCode = models.IntegerField( null=True, blank=True)
+    districtCode = models.IntegerField(null=True, blank=True, default=-1)
+    subdistrictCode = models.IntegerField( null=True, blank=True, default=-1)
+    villageCode = models.IntegerField( null=True, blank=True, default=-1)
+    catagory = models.ForeignKey(CatagoryModel, blank=True, on_delete=models.SET_NULL, null=True)
+    count = models.IntegerField(null=True, blank=True, default=0)
+    
+   

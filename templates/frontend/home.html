@@ -5,6 +5,7 @@
 {% endblock %}
 {% load static %}
 {% block content %} 
+
   <form method="POST">
     {% csrf_token %}
     {{form | crispy}}
@@ -21,7 +22,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const stateSelect = document.getElementById("id_stateCode");
+      const stateSelect = document.getElementById("id_state");
       const districtSelect = document.getElementById("id_district");
       const subdistrictSelect = document.getElementById("id_subdistrict");
       const villageSelect = document.getElementById("id_village");
@@ -36,12 +37,12 @@
 
 
       function resetFieldsBelowDistrict() {
-        subdistrictSelect.value = "";
-        villageSelect.value = "";
+        subdistrictSelect.value = null;
+        villageSelect.value = null;
       }
 
       function resetFieldsBelowSubdistrict() {
-        villageSelect.value = "";
+        villageSelect.value = null;
       }
 
     });

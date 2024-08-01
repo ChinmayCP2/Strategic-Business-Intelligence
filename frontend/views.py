@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from lgd.models import DistrictModel, SubDistrictModel, VillageModel
 from .forms import LocationForm, RegistrationForm
@@ -12,23 +12,25 @@ def home(request):
     if request.method == 'POST':
         form = LocationForm(request.POST)      
         data = request.POST
-        stateCode = data.get('stateCode')
+        state = data.get('state')
         district = data.get('district')
         subdistrict = data.get('subdistrict')
         village = data.get('village')
+        catagory = data.get('catagory')
+        print(state, district, subdistrict, village)
+        print(state, district, subdistrict, village)
         datamodel_objects = DataModel.objects.all() # pylint: disable=maybe-no-member
-        if stateCode:
-            datamodel_objects = datamodel_objects.filter(stateCode=stateCode).values('id','name')
+        if state:
+            datamodel_objects = datamodel_objects.filter(stateCode=state).values('stateCode','name')
         if district:
-            datamodel_objects = datamodel_objects.filter(districtCode=district).values('name')
+            datamodel_objects = datamodel_objects.filter(districtCode=district).values('name', 'districtCode')
         if subdistrict:
-            datamodel_objects = datamodel_objects.filter(subdistrictCode=subdistrict).values('name')
+            datamodel_objects = datamodel_objects.filter(subdistrictCode=subdistrict).values('name', 'subdistrictCode')
         if village:
             datamodel_objects = datamodel_objects.filter(villageCode=village).values('name')
-        print(datamodel_objects)
+        # print(datamodel_objects)
         context = {'form': form, 'data': datamodel_objects}
         return render(request, 'frontend/home.html', context)
-            
     form = LocationForm()
     context = {'form': form}
     return render(request, 'frontend/home.html', context)
@@ -47,8 +49,8 @@ def sign_up(request):
 
 def load_districts(request):
     '''dropdown district'''
-    stateCode = request.GET.get('stateCode')
-    districts = DistrictModel.objects.filter(stateCode = stateCode) # pylint: disable=maybe-no-member
+    state = request.GET.get('state')
+    districts = DistrictModel.objects.filter(stateCode = state) # pylint: disable=maybe-no-member
     # print(districts)
     context = {'districts' : districts}
     return render(request, 'dropdown_options/district_options.html', context)

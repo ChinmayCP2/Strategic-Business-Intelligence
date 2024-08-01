@@ -10,10 +10,10 @@ from .models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 load_dotenv()
 logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w', 
                     format="%(asctime)s - %(levelname)s - %(message)s")
-@permission_required('frontend.lgd_bd_access')
+@permission_required('frontend.lgd_access')
 def load_state(request):
     '''function to load the states'''
-
+    print('working')
     try:
         request_to_lgd = requests.post(os.getenv('STATE_ENDPOINT'), 
                           data=request.POST, timeout=10)
@@ -37,9 +37,10 @@ def load_state(request):
     logging.error('state data not saved')
     return HttpResponse('Could not save data')
 
-@permission_required('frontend.lgd_bd_access')
+@permission_required('frontend.lgd_access')
 def load_district(request):
     '''loads district data'''
+    print('working')
     states = StateModel.objects.all().distinct() # pylint: disable=maybe-no-member
     # print(states)
     for state in states:
@@ -67,9 +68,10 @@ def load_district(request):
     logging.info('District Data saved')
     return HttpResponse("district data saved")
 
-@permission_required('frontend.lgd_bd_access')        
+@permission_required('frontend.lgd_access')        
 def load_sub_district(request):
     '''loads subdistrict data'''
+    print('working')
     # SubDistrictModel.objects.all().delete() # pylint: disable=maybe-no-member
     districts = DistrictModel.objects.all().distinct() # pylint: disable=maybe-no-member
     # print(districts)
@@ -101,9 +103,10 @@ def load_sub_district(request):
     logging.info('subdistrict Data saved')
     return HttpResponse("subdistrict data saved")
 
-@permission_required('frontend.lgd_bd_access')
+@permission_required('frontend.lgd_access')
 def load_village(request):
     '''loads village data'''
+    print('working')
     # VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
     subdistricts = SubDistrictModel.objects.all().distinct() # pylint: disable=maybe-no-member
     # print(subDistricts)
@@ -135,7 +138,7 @@ def load_village(request):
     logging.info('village data saved')       
     return HttpResponse("village data saved")
 
-@permission_required('frontend.lgd_bd_access')
+@permission_required('frontend.lgd_access')
 def reset_db(request,region):
     '''resets the database'''
     if region == 'dist':
