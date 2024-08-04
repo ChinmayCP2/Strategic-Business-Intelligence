@@ -1,6 +1,7 @@
 import uuid 
 from django.db import models
 from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
 # from django.db.models import UniqueConstraint
 
 # Create your models here.
@@ -51,8 +52,8 @@ class DataModel(TimeStampedModel):
     googleMapsUri = models.CharField(max_length=200, null=True, blank=True, default= 'url not found')
     businessStatus = models.CharField(max_length=200, null=True, blank=True, default='closed')
     formattedAddress = models.TextField(null=True, blank=True)
-    locationLongitude = models.DecimalField(max_digits=9, decimal_places=7, default=0)
-    locationLatitude = models.DecimalField(max_digits=10, decimal_places=7,default=0)
+    locationLongitude = models.DecimalField(max_digits=10, decimal_places=7, default=0) 
+    locationLatitude = models.DecimalField(max_digits=10, decimal_places=7, default=0)
     userRatingCount = models.IntegerField(null=True, blank=True, default= -1)
     stateCode = models.IntegerField( null=True, blank=True, default=-1)
     districtCode = models.IntegerField(null=True, blank=True, default=-1)
@@ -68,5 +69,29 @@ class CountModel(TimeStampedModel):
     villageCode = models.IntegerField( null=True, blank=True, default=-1)
     catagory = models.ForeignKey(CatagoryModel, blank=True, on_delete=models.SET_NULL, null=True)
     count = models.IntegerField(null=True, blank=True, default=0)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['stateCode', 'districtCode', 'catagory']),
+        ]
     
+class User(AbstractUser):
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='frontend_user_groups',
+        blank=True,
+    )
+
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='frontend_user_permissions',
+        blank=True,
+    )
+
+    class Meta:
+        permissions = [
+            ("lgd_access", "lgd data access"),
+            ("data_model_access", "extracted data access"),
+        ]
    

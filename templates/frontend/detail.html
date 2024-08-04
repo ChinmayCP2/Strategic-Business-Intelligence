@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detail</title>
+</head>
+<body>
+    <h1>Details for {{ state_code }} - {{ district_code }}</h1>
+    <h2>Category: {{ category }}</h2>
+    <ul>
+        {% for item in counts %}
+        <li>{{ item.catagory__catagory }}: {{ item.count }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+{% endblock %}

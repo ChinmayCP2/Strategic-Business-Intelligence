@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+{% block title %}
+  Home Page
+{% endblock %}
+{% load static %}
+{% block content %} 
+{% if message %}
+  <p>{{ message }}</p>
+{% endif %}
+
+{% if locations %}
+<table class="table">
+  <tr>
+    <th scope="col">State</th>
+    <th scope="col">District</th>
+    <th scope="col">Subdistrict</th>
+    <th scope="col">Village</th>
+    <th scope="col">Count</th>
+  </tr>
+
+  {% for location in locations %}
+      <tr>
+        <td scope="row">{{ location.state }}</td>
+        <td>{{ location.district }}</td>
+        <td>{{ location.subdistrict }}</td>
+        <td>{{ location.village }}</td>
+        <td>{{ location.count }}</td>
+      </tr>
+  {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

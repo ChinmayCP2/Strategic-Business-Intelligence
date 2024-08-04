@@ -6,20 +6,60 @@
 {% load static %}
 {% block content %} 
 
-  <form method="POST">
-    {% csrf_token %}
-    {{form | crispy}}
-    <input type = "submit" value = "Submit">
-  </form>
+<form method="POST">
+  {% csrf_token %}
+  <div class="mb-3">
+      <label for="id_state" class="form-label">State</label>
+      {{ form.state }}
+  </div>
+  <div class="mb-3">
+      <label for="id_district" class="form-label">District</label>
+      {{ form.district }}
+  </div>
+  <!-- <div class="mb-3">
+      <label for="id_subdistrict" class="form-label">Subdistrict</label>
+      {{ form.subdistrict }}
+  </div>
+  <div class="mb-3">
+      <label for="id_village" class="form-label">Village</label>
+      {{ form.village }}
+  </div> -->
+  <div class="mb-3">
+      <label for="id_catagory" class="form-label">Category</label>
+      {{ form.catagory }}
+  </div>
+  <!-- <div class="mb-3">
+      <label for="id_sorting" class="form-label">Sorting</label>
+      {{ form.sorting }}
+  </div> -->
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
 
 {% if message %}
   <p>{{ message }}</p>
 {% endif %}
 
 {% if places %}
-  <ul>
+<table class="table">
+  <tr>
+    <th scope="col">Place</th>
+    <th scope="col">Address</th>
+    <th scope="col">Google Maps</th>
+    <th scope="col">Status</th>
+    <th scope="col">Rating</th>
+    <th scope="col">userRatingCount</th>
+  </tr>
+
   {% for place in places %}
-      <li>{{ place.name }}</li>
+      <tr>
+        <td scope="row">{{ place.name }}</td>
+        <td>{{ place.formattedAddress }}</td>
+        <td><a href="{{ place.googleMapsUri }}">Link</a></td>
+        <td>{{ place.businessStatus }}</td>
+        <td>{{ place.rating }}</td>
+        <td>{{ place.userRatingCount }}</td>
+      </tr>
   {% endfor %}
   </ul>
 {% endif %}
@@ -31,6 +71,10 @@
       const subdistrictSelect = document.getElementById("id_subdistrict");
       const villageSelect = document.getElementById("id_village");
 
+      window.addEventListener("load", function() {
+        resetAllFields();
+    });
+
       stateSelect.addEventListener("change", function() {
         resetFieldsBelowDistrict();
       });
@@ -38,7 +82,11 @@
       districtSelect.addEventListener("change", function() {
         resetFieldsBelowSubdistrict();
       });
-
+      form.addEventListener("submit", function(event) {
+        event.preventDefault(); 
+        resetAllFields(); // Reset all fields
+        form.submit(); 
+      });
 
       function resetFieldsBelowDistrict() {
         subdistrictSelect.value = null;
@@ -48,7 +96,12 @@
       function resetFieldsBelowSubdistrict() {
         villageSelect.value = null;
       }
-
+      function resetAllFields() {
+        stateSelect.value = "--------"; 
+        districtSelect.value = null;
+        subdistrictSelect.value = null;
+        villageSelect.value = null;
+    }
     });
   </script>
 {% endblock %}

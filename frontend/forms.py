@@ -8,36 +8,56 @@ fields = ['name']
 SORTING_CHOICES = tuple((field, field) for field in fields)
 
 class LocationForm(forms.Form):
-    '''select location form'''
-    # stateCode = forms.ModelChoiceField(queryset=StateModel.objects.all(),  # pylint: disable=maybe-no-member
-    #                                 widget=forms.Select(attrs={"hx-get": "load-districts/","hx-target" : "#id_district", "hx-trigger": "change" }))
-    state = forms.ModelChoiceField(queryset=StateModel.objects.all(), 
-                                   required=True,
-                                   widget=forms.Select(attrs=
-                                                       {"hx-get": "/load-districts/?state={{ value }}",
-                                                             "hx-target" : "#id_district", 
-                                                            }))
-    district = forms.ModelChoiceField(queryset=DistrictModel.objects.none(),
-                                       required=False, initial= None,
-                                       widget=forms.Select(attrs={"hx-get": "/load-subdistricts/?district={{ value }}", 
-                                                             "hx-target" : "#id_subdistrict",
-                                                            })) # pylint: disable=maybe-no-member
-    subdistrict = forms.ModelChoiceField(queryset=SubDistrictModel.objects.none(),
-                                         required=False, initial= None,
-                                         widget=forms.Select(attrs=
-                                                             {"hx-get": "/load-villages/?subdistrict={{ value }}", 
-                                                             "hx-target" : "#id_village", 
-                                                            })) # pylint: disable=maybe-no-member
-    village = forms.ModelChoiceField(queryset=VillageModel.objects.none(),
-                                     initial= None, required=False ) # pylint: disable=maybe-no-member
-    catagory = forms.ModelChoiceField(queryset=CatagoryModel.objects.all())
-    sorting = forms.ChoiceField(choices=SORTING_CHOICES, required=False)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        district = cleaned_data.get('district')
-        if district is None:
-            pass
+    
+    '''Select location form'''
+    state = forms.ModelChoiceField(
+        queryset=StateModel.objects.all(), required=True, # pylint: disable=maybe-no-member
+        widget=forms.Select(attrs={
+            "class": "form-select","id": "id_state",
+            "hx-get": "/load-districts/?state={{ value }}",
+            "hx-target": "#id_district",
+        })
+    )
+    district = forms.ModelChoiceField(
+        queryset=DistrictModel.objects.none(),required=False, # pylint: disable=maybe-no-member
+        initial=None,
+        widget=forms.Select(attrs={
+            "class": "form-select","id": "id_district",
+            "hx-get": "/load-subdistricts/?district={{ value }}",
+            "hx-target": "#id_subdistrict",
+        })
+    )
+    subdistrict = forms.ModelChoiceField(
+        queryset=SubDistrictModel.objects.none(),required=False, # pylint: disable=maybe-no-member
+        initial=None,
+        widget=forms.Select(attrs={
+            "class": "form-select", "id": "id_subdistrict",
+            "hx-get": "/load-villages/?subdistrict={{ value }}",
+            "hx-target": "#id_village",
+        })
+    )
+    village = forms.ModelChoiceField(
+        queryset=VillageModel.objects.none(), # pylint: disable=maybe-no-member
+        initial=None,
+        required=False,
+        widget=forms.Select(attrs={
+            "class": "form-select", "id": "id_village"
+        })
+    )
+    catagory = forms.ModelChoiceField(
+        queryset=CatagoryModel.objects.all(), # pylint: disable=maybe-no-member
+        empty_label="",
+        widget=forms.Select(attrs={
+            "class": "form-select", "id": "id_catagory"
+        })
+    )
+    sorting = forms.ChoiceField(
+        choices=SORTING_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={ 
+            "class": "form-select", "id": "id_sorting"
+        })
+    )
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     

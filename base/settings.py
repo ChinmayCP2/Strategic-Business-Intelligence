@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'lgd',
     'strategicbi',
-    'frontend',
-    'aggrigations',
     'crispy_bootstrap5',
     'crispy_forms',
 ]
@@ -136,8 +134,8 @@ STATICFILES_DIRS = [ BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = "/home"
-LOGOUT_REDIRECT_URL = "/login"
+LOGIN_REDIRECT_URL = "/home/"
+LOGOUT_REDIRECT_URL = "/login/"
 
 CRISPY_FORMS_SETTINGS = {
     'form_show_errors' : True

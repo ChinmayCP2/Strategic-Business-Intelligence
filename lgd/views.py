@@ -11,6 +11,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w', 
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
+@permission_required('frontend.lgd_access')   
 def load_state(request):
     '''function to load the states'''
     print('working')

@@ -3,7 +3,7 @@
       {
         "id": "ChIJ00x-L_pbXjkR54WJ0u9GCIE",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         "name": "places/ChIJ00x-L_pbXjkR54WJ0u9GCIE",
@@ -347,7 +347,7 @@
       {
         "id": "ChIJFXZgHBpbXjkRmTKNSOoEoCE",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         "name": "places/ChIJFXZgHBpbXjkRmTKNSOoEoCE",
@@ -755,7 +755,7 @@
       {
         "id": "ChIJvTWe0T1bXjkRwCz1a66Mhlg",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         "name": "places/ChIJvTWe0T1bXjkRwCz1a66Mhlg",
@@ -1144,7 +1144,7 @@
       {
         "id": "ChIJDxMA7ghbXjkR1ydnhxdQzbQ",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         "name": "places/ChIJDxMA7ghbXjkR1ydnhxdQzbQ",
@@ -1921,7 +1921,7 @@
       {
         "id": "ChIJoTTMNwtbXjkRVENXPzC8Gng",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         "name": "places/ChIJoTTMNwtbXjkRVENXPzC8Gng",
@@ -2702,7 +2702,7 @@
       {
         "id": "ChIJwT6SdRBbXjkRA6MkVlXRNFo",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         "name": "places/ChIJwT6SdRBbXjkRA6MkVlXRNFo",
@@ -2857,7 +2857,7 @@
       {
         "id": "ChIJVSwkCwZbXjkRG8kOv2BRoko",
         "stateCode": 24,
-        "districtCode": 469,
+        "districtCode": 438,
         "subdistrictCode": null,
         "villageCode": null,
         
@@ -5959,7 +5959,7 @@
       {
         "id": "ChIJ4csy26FbXjkRKMYUTHzSWpQ",
         "stateCode": 27,
-        "districtCode": 521,
+        "districtCode": 490,
         "subdistrictCode": 15,
         "villageCode": null,
         "name": "places/ChIJ4csy26FbXjkRKMYUTHzSWpQ",
@@ -8623,7 +8623,7 @@
       "businessStatus": "OPERATIONAL",
       "userRatingCount": 600,
       "stateCode": 27,
-      "districtCode": 521,
+      "districtCode": 490,
       "subdistrictCode": 1,
       "villageCode": 1002
   },
@@ -8777,7 +8777,7 @@
       "businessStatus": "OPERATIONAL",
       "userRatingCount": 1000,
       "stateCode": 27,
-      "districtCode": 521,
+      "districtCode": 490,
       "subdistrictCode": 1,
       "villageCode": 1010
   },
@@ -8795,7 +8795,7 @@
       "businessStatus": "OPERATIONAL",
       "userRatingCount": 1050,
       "stateCode": 27,
-      "districtCode": 521,
+      "districtCode": 490,
       "subdistrictCode": 1,
       "villageCode": 1011
   },
