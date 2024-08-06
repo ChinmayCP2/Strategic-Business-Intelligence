@@ -11,7 +11,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w', 
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
-@permission_required('frontend.lgd_access')   
+# @permission_required('frontend.lgd_access')   
 def load_state(request):
     '''function to load the states'''
     print('working')
@@ -37,7 +37,7 @@ def load_state(request):
     logging.error('state data not saved')
     return HttpResponse('Could not save data')
 
-@permission_required('frontend.lgd_access')
+# @permission_required('frontend.lgd_access')
 def load_district(request):
     '''loads district data'''
     print('working')
@@ -68,7 +68,7 @@ def load_district(request):
     logging.info('District Data saved')
     return HttpResponse("district data saved")
 
-@permission_required('frontend.lgd_access')        
+# @permission_required('strategicbi.lgd_access')        
 def load_sub_district(request):
     '''loads subdistrict data'''
     print('working')
@@ -138,7 +138,7 @@ def load_village(request):
     logging.info('village data saved')       
     return HttpResponse("village data saved")
 
-@permission_required('frontend.lgd_access')
+# @permission_required('frontend.lgd_access')
 def reset_db(request,region):
     '''resets the database'''
     if region == 'dist':

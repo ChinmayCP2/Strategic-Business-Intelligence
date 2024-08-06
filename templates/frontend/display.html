@@ -28,10 +28,11 @@
             z-index: 999;
         }
     </style>
-
-    <table border="1">
+    
+    <table border="1" class="t table table-bordered table-striped">
         <thead>
             <tr>
+                
                 <th>State Code</th>
                 <th>District Code</th>
                 <th>Details</th>
@@ -43,7 +44,7 @@
                 <td>{{ location.state_name }}</td>
                 <td>{{ location.district_name }}</td>
                 <td>
-                    <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}')">View Details</a>
+                    <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.state_name }}','{{ location.district_name }}')">View Details</a>
                 </td>
             </tr>
             {% endfor %}
@@ -56,8 +57,8 @@
         <table id="detailsTable" border="1">
             <thead>
                 <tr>
-                    <th>State Code</th>
-                    <th>District Code</th>
+                    <th>State</th>
+                    <th>District</th>
                     <th>Category</th>
                     <th>Count</th>
                 </tr>
@@ -70,7 +71,7 @@
     </div>
 
     <script>
-        function showPopup(stateCode, districtCode) {
+        function showPopup(stateCode, districtCode,state_name,district_name) {
             fetch(`/get_details/?stateCode=${stateCode}&districtCode=${districtCode}`)
                 .then(response => response.json())
                 .then(data => {
@@ -79,8 +80,8 @@
                     data.forEach(item => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${item.stateCode}</td>
-                            <td>${item.districtCode}</td>
+                            <td>${state_name}</td>
+                            <td>${district_name}</td>
                             <td>${item.catagory__catagory}</td>
                             <td>${item.count}</td>
                         `;

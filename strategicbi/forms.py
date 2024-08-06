@@ -46,7 +46,7 @@ class LocationForm(forms.Form):
     # )
     catagory = forms.ModelChoiceField(
         queryset=CatagoryModel.objects.all().distinct('catagory'), # pylint: disable=maybe-no-member
-        empty_label="",
+        initial= CatagoryModel.objects.get(catagory="all"),
         widget=forms.Select(attrs={
             "class": "form-select", "id": "id_catagory"
         })

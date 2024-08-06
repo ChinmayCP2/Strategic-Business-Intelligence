@@ -92,6 +92,6 @@ class User(AbstractUser):
     class Meta:
         permissions = [
             ("lgd_access", "lgd data access"),
-            ("data_model_access", "extracted data access"),
+            ("datamodel_access", "extracted data access"),
         ]
    
