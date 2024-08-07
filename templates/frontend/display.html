@@ -5,6 +5,9 @@
 {% endblock %}
 {% load static %}
 {% block content %} 
+<body>
+    
+</body>
     <style>
         .popup {
             display: none;
@@ -28,7 +31,16 @@
             z-index: 999;
         }
     </style>
-    
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_state" class="form-label">State</label>
+            {{ form.state }}
+            <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <button  class="btn btn-link"><a href="{% url 'display' %}">Reset</a></button>
+    </div>
+    <br>
     <table border="1" class="t table table-bordered table-striped">
         <thead>
             <tr>
@@ -38,19 +50,49 @@
                 <th>Details</th>
             </tr>
         </thead>
+        
         <tbody>
+            {% if distinct_locations %}
             {% for location in distinct_locations %}
             <tr>
-                <td>{{ location.state_name }}</td>
-                <td>{{ location.district_name }}</td>
+                <td>{{ location.stateNameEnglish }}</td>
+                <td>{{ location.districtNameEnglish }}</td>
+                <!-- <td>{{ location.state_name }}</td>
+                <td>{{ location.district_name }}</td> -->
                 <td>
-                    <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.state_name }}','{{ location.district_name }}')">View Details</a>
+                    <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">View Details</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
+        {% endif %}
     </table>
-
+    {% if message %}
+        <p class="text-center h2 mt-3">{{message}}</p> 
+    {% endif %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            {% if distinct_locations.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ distinct_locations.previous_page_number }}">Previous</a></li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+            {% endif %}   
+            {% if distinct_locations.paginator.num_pages %}
+            <li class="page-item"><a class="page-link" href="">Page {{ distinct_locations.number }} of {{ distinct_locations.paginator.num_pages }}</a></li>
+            {% else %}
+            <li class="page-item"><a class="page-link" href="">0</a></li>
+            {% endif %}
+          {% if distinct_locations.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ distinct_locations.next_page_number }}">Next</a></li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+      </nav>
     <div class="overlay" id="overlay"></div>
     <div class="popup" id="popup">
         <h2>Details</h2>
@@ -71,7 +113,7 @@
     </div>
 
     <script>
-        function showPopup(stateCode, districtCode,state_name,district_name) {
+        function showPopup(stateCode, districtCode,stateNameEnglish,districtNameEnglish) {
             fetch(`/get_details/?stateCode=${stateCode}&districtCode=${districtCode}`)
                 .then(response => response.json())
                 .then(data => {
@@ -80,8 +122,8 @@
                     data.forEach(item => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${state_name}</td>
-                            <td>${district_name}</td>
+                            <td>${stateNameEnglish}</td>
+                            <td>${districtNameEnglish}</td>
                             <td>${item.catagory__catagory}</td>
                             <td>${item.count}</td>
                         `;

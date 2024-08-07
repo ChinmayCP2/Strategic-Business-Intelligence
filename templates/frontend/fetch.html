@@ -5,7 +5,10 @@
 {% endblock %}
 {% load static %}
 {% block content %} 
-
+<body>
+  
+</body>
+<p class="fs-1 mt-4">{{ page_name }}</p>
 <form method="POST">
   {% csrf_token %}
   <div class="mb-3">

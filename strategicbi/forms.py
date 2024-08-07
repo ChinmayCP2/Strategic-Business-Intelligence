@@ -6,9 +6,15 @@ from strategicbi.models import CatagoryModel
 
 fields = ['name']
 SORTING_CHOICES = tuple((field, field) for field in fields)
+class StateForm(forms.Form):
+    '''sort by state form'''
+    state = forms.ModelChoiceField(queryset=StateModel.objects.all(),
+                                    empty_label="All",  # Add this to display "All" as the first option
+                                    required=False,
+                                    widget=forms.Select(attrs={
+                                    "class": "form-select","id": "id_state"})) # pylint: disable=maybe-no-member
 
 class LocationForm(forms.Form):
-    
     '''Select location form'''
     state = forms.ModelChoiceField(
         queryset=StateModel.objects.all(), # pylint: disable=maybe-no-member
