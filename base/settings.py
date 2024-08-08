@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'crispy_forms',
     "debug_toolbar",
+    'django_celery_results',
 ]
 
 CRISPY_ALLOWED_TEMPLETES_PACKS = "bootstrap5"
@@ -118,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -148,3 +149,17 @@ INTERNAL_IPS = [
 DEBUG_TOOLBAR_CONFIG = {
     'RECORD_REDIRECTS': True,
 }
+
+# celery settings
+CELERY_TIMEZONE = "Asia/Kolkata"
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_EXTENDED = True
+CELERYD_CONCURRENCY = 4  # Adjust this value based on your system's CPU cores
+CELERYD_TASK_TIME_LIMIT = 30  # Set a task time limit to prevent long-running tasks
+CELERYD_LOG_FORMAT = '[%(asctime)s: %(levelname)s/%(processName)s] %(message)s'
+CELERYD_LOG_FILE = 'celery.log'
+CELERYBEAT_LOG_FILE = 'celerybeat.log'
+CELERYD_POOL = 'gevent'  # Use the gevent pool for I/O-bound tasks
+CELERYD_PREFETCH_MULTIPLIER = 4  # Control the number of tasks prefetched by the worker
+CELERYD_MAX_TASKS_PER_CHILD = 100  # Limit the number of tasks per worker child process

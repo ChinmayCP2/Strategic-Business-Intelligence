@@ -5,4 +5,8 @@ requests
 python-dotenv
 crispy-bootstrap5
 aiohttp
+redis
+celery
+django-celery-results
+gevent
 # django-debug-toolbar
