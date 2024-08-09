@@ -1,7 +1,5 @@
 import uuid 
 from django.db import models
-from django.dispatch import receiver
-from django.contrib.auth.models import AbstractUser
 # from django.db.models import UniqueConstraint
 
 # Create your models here.
@@ -29,7 +27,7 @@ class JSONDataModel(TimeStampedModel):
 
 class CatagoryModel(TimeStampedModel):
     '''catagory model'''
-    catagory = models.CharField(max_length=200, null=True, blank=True)
+    catagory = models.CharField(max_length=200, null=True, blank=True, default="other")
     subCatagory = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
@@ -75,23 +73,3 @@ class CountModel(TimeStampedModel):
             models.Index(fields=['stateCode', 'districtCode', 'catagory']),
         ]
     
-class User(AbstractUser):
-
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='frontend_user_groups',
-        blank=True,
-    )
-
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='frontend_user_permissions',
-        blank=True,
-    )
-
-    class Meta:
-        permissions = [
-            ("lgd_access", "lgd data access"),
-            ("datamodel_access", "extracted data access"),
-        ]
-   

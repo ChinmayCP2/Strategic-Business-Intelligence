@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'lgd',
     'strategicbi',
+    'auth_app',
     'crispy_bootstrap5',
     'crispy_forms',
     "debug_toolbar",
@@ -137,7 +138,7 @@ STATICFILES_DIRS = [ BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = "/home/"
+LOGIN_REDIRECT_URL = "/bi/home/"
 LOGOUT_REDIRECT_URL = "/login/"
 
 CRISPY_FORMS_SETTINGS = {
@@ -155,7 +156,7 @@ CELERY_TIMEZONE = "Asia/Kolkata"
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_EXTENDED = True
-CELERYD_CONCURRENCY = 4  # Adjust this value based on your system's CPU cores
+CELERYD_CONCURRENCY = 4  
 CELERYD_TASK_TIME_LIMIT = 30  # Set a task time limit to prevent long-running tasks
 CELERYD_LOG_FORMAT = '[%(asctime)s: %(levelname)s/%(processName)s] %(message)s'
 CELERYD_LOG_FILE = 'celery.log'

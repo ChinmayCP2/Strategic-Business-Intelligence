@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+
 from lgd.models import StateModel, DistrictModel, SubDistrictModel, VillageModel
 from strategicbi.models import CatagoryModel
 
@@ -12,14 +11,14 @@ class StateForm(forms.Form):
                                     empty_label="All",  # Add this to display "All" as the first option
                                     required=False,
                                     widget=forms.Select(attrs={
-                                    "class": "form-select","id": "id_state"})) # pylint: disable=maybe-no-member
+                                    "class": "form-select my-3","id": "id_state"})) # pylint: disable=maybe-no-member
 
 class LocationForm(forms.Form):
     '''Select location form'''
     state = forms.ModelChoiceField(
         queryset=StateModel.objects.all(), # pylint: disable=maybe-no-member
         widget=forms.Select(attrs={
-            "class": "form-select","id": "id_state",
+            "class": "form-select w-50","id": "id_state",
             "hx-get": "/load-districts/?state={{ value }}",
             "hx-target": "#id_district",
         })
@@ -28,7 +27,7 @@ class LocationForm(forms.Form):
         queryset=DistrictModel.objects.none(), # pylint: disable=maybe-no-member
         initial=None,
         widget=forms.Select(attrs={
-            "class": "form-select","id": "id_district",
+            "class": "form-select w-50","id": "id_district",
             # "hx-get": "/load-subdistricts/?district={{ value }}",
             # "hx-target": "#id_subdistrict",
         })
@@ -54,13 +53,7 @@ class LocationForm(forms.Form):
         queryset=CatagoryModel.objects.all().distinct('catagory'), # pylint: disable=maybe-no-member
         initial= CatagoryModel.objects.get(catagory="all"),
         widget=forms.Select(attrs={
-            "class": "form-select", "id": "id_catagory"
+            "class": "form-select w-50", "id": "id_catagory"
         })
     )
     
-class RegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    
-    class Meta:
-        model = User
-        fields = ['username' , 'email', 'password1', 'password2']

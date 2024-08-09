@@ -1,16 +1,12 @@
-# import os
 import json
 import logging
 import random
-# import requests
-# import asyncio
-# from aiohttp import ClientSession
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 # from django.contrib.auth.decorators import permission_required
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.shortcuts import render
+
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from django.db.models import Sum
@@ -19,12 +15,11 @@ from django.db import connection
 # from django.middleware.csrf import get_token
 from django.core.paginator import Paginator
 from dotenv import load_dotenv
-from lgd.models import SubDistrictModel, StateModel, DistrictModel, VillageModel
-from .forms import LocationForm, RegistrationForm, StateForm
+from lgd.models import DistrictModel
+from .forms import LocationForm, StateForm
 # from utils.decorators import custom_permission_required
-from .models import JSONDataModel, DataModel, CatagoryModel, CountModel
+from .models import DataModel, CatagoryModel, CountModel
 from .generate import generate_random_places
-# from asgiref.sync import async_to_sync
 from .tasks import fetch_and_save_data
 # Create your views here.
 load_dotenv()
@@ -37,27 +32,37 @@ logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w',
 def home(request):
     '''Home view'''
     form = LocationForm(request.POST or None)
+    logging.info("displayed the form")
     context = {}
     if 'catagory' in request.session:
             del request.session['catagory']
+            logging.info("category saved in the session")
     if request.method == 'POST':   
+        logging.info("Form submitted")
         data = request.POST
         state = data.get('state')
         district = data.get('district')
         request.session['catagory'] = data.get('catagory')
         if DataModel.objects.filter(stateCode = state, districtCode = district).exists(): # pylint: disable=maybe-no-member
+            logging.info("The district data found so redirected to display")
             return HttpResponseRedirect(reverse('display'))
         else:
+            logging.info("The district data not found so redirected to fetch message")
             request.session['state'] = state
             request.session['district'] = district
+            logging.info(f"redirect to fetch message {request.session['state']} and {request.session['district']} saved")
             return HttpResponseRedirect(reverse('fetch-message'))
     context['form'] = form
     context['page_name'] = "Home Page Form"
     return render(request, 'frontend/fetch.html', context)
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
 def fetch_message(request):
     '''if district is not found message to ask user to fetch or continue'''
+    logging.info("Feth message displayed")
+    request.session['district']
     return render(request, 'frontend/fetch_message.html')
 
 
@@ -65,6 +70,7 @@ def fetch_message(request):
 @login_required(login_url='/login')
 def fetch_function(request):
     '''fetch data from database'''
+    logging.info("fetch function called")
     state = request.session['state'] 
     district = request.session['district'] 
     # all_places = asyncio.run(fetch_api_data(state,district))
@@ -75,59 +81,14 @@ def fetch_function(request):
     # count_places_by_catagory()
     fetch_and_save_data.delay(state, district)
     if 'state' in request.session:
+            logging.info(f"state {request.session['state']} deleting after fetching is done ")
             del request.session['state']
+            logging.info(f"state deleted after fetching is done ")
     if 'district' in request.session:
+            logging.info(f"district {request.session['district']} deleting after fetching is done ")
             del request.session['district']
+            logging.info(f"district deleted after fetching is done ")
     return HttpResponseRedirect(reverse('display'))
-
-# async def fetch_api_data(state, district):
-#     '''fetching data from the api for the given district'''
-#     if not state or not district:
-#         return JsonResponse({'error': 'Missing required parameters'}, status=400)
-
-#     all_places = []
-#     tasks = []
-#     subdistricts = SubDistrictModel.objects.filter(districtCode=district)
-
-#     async with ClientSession() as session:
-#         for subdistrict in subdistricts:
-#             villages = VillageModel.objects.filter(subdistrictCode=subdistrict)
-#             for village in villages:
-#                 village_payload = {
-#                     "stateCode": state,
-#                     "districtCode": district,
-#                     "subdistrictCode": subdistrict.subdistrictCode,
-#                     "villageCode": village.villageCode
-#                 }
-#                 tasks.append(fetch_village_places(session, village_payload))
-
-#         results = await asyncio.gather(*tasks)
-#         for result in results:
-#             if result:
-#                 all_places.extend(result)
-            
-#     print(all_places)
-#     return all_places
-
-# async def fetch_village_places(session, village_payload):
-#     headers = {
-#         "Content-Type": "application/json"
-#     }
-#     async with session.post(os.getenv('CATEGORICAL_DATA'), data=json.dumps(village_payload), headers=headers) as response:
-#         if response.status == 200:
-#             village_places = await response.json()
-#             if isinstance(village_places, list):
-#                 for place in village_places:
-#                     if isinstance(place, dict):
-#                         place.update({'stateCode': village_payload.get('stateCode'),
-#                                        'districtCode': village_payload.get('districtCode'),
-#                                          'subdistrictCode': village_payload.get('subdistrictCode'),
-#                                            'villageCode': village_payload.get('villageCode')})
-#                 return village_places
-#             else:
-#                 return JsonResponse({'error': 'Invalid format for village places'}, status=500)
-#         else:
-#             return JsonResponse({'error': 'Failed to get village places'}, status=500)
 
 
 @csrf_exempt
@@ -140,40 +101,45 @@ def send_json_response(request):
             district_code = data.get('districtCode')
             subdistrict_code = data.get('subdistrictCode')
             village_code = data.get('villageCode')
-
+            logging.info(f"send_json called with {state_code},{district_code},{subdistrict_code} and {village_code}")
             if not state_code or not district_code:
+                logging.error("state or district not found")
                 return JsonResponse({'error': 'Missing required parameters'}, status=400)
 
             places = []
             if village_code:
                 '''sending data for all the villages'''
+                logging.info("random data generation started")
                 places = generate_random_places(random.randint(0, 1))
-            # elif subdistrict_code:
-            #     places = generate_random_places(random.randint(2, 4))
-            #     pass
-            # elif district_code:
-            #     places = generate_random_places(random.randint(4, 5))
+
 
             return JsonResponse({'places': places}, status=200)
         
         else:
+            logging.error("invalid request method")
             return JsonResponse({'error': 'Invalid request method'}, status=405)
         
     except json.JSONDecodeError:
+        logging.error("invalid JSON")
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
+        logging.error(f"error {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
 def fetch_screen(request):
     '''fetch view'''
+    logging.info("fetch screen called")
+
     form = LocationForm(request.POST or None)
     context = {}
     # deleting the previous catagory used by the user we we can set a new one when searching 
     if 'catagory' in request.session:
+            logging.info("deleting category before fetching if any")
             del request.session['catagory']
     if request.method == 'POST':
+        logging.info("Form submitted on fetch_screen")
         data = request.POST
         state = data.get('state')
         district = data.get('district')
@@ -181,6 +147,7 @@ def fetch_screen(request):
         request.session['catagory'] = data.get('catagory')
         request.session['state'] = state
         request.session['district'] = district
+        logging.info("session data stored")
         fetch_function(request)
         # return render(request,'temp.html')
         return HttpResponseRedirect(reverse('display'))
@@ -189,75 +156,28 @@ def fetch_screen(request):
     return render(request, 'frontend/fetch.html', context)
 
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
 def display_view(request):
     '''To display distict districts and provide a option to view count''' 
-    # distinct_locations = DataModel.objects.values('stateCode', # pylint: disable=maybe-no-member
-    #                                               'districtCode',
-    #                                               'catagory','created_at')  .distinct('stateCode',
-    #                                                                     'districtCode')
-    
     form = StateForm(request.POST or None)
     context = {}
     if request.method == 'POST' and request.POST.get('state'):
         data = request.POST
         state = data.get('state')
-        # state_instance = StateModel.objects.get(id=state)  # Replace with the actual state object
         rows = get_distinct_locations(state)
+        logging.info("get district locations query ran based on state")
         updated_locations = [dict(zip(['stateCode', 'stateNameEnglish', 'districtCode','districtNameEnglish', 'created_at'], row)) for row in rows]
-        # subquery = DataModel.objects.filter(stateCode = state) \
-        #                         .only('stateCode','districtCode','created_at') \
-        #                         .distinct('stateCode',
-        #                                 'districtCode')
-        
-
-        # distinct_locations = DataModel.objects.only('stateCode','districtCode','created_at') \
-        #                             .filter(id__in=Subquery(subquery.values('id'))) \
-        #                                 .values('stateCode', 
-        #                                         'districtCode', 
-        #                                         'catagory', 
-        #                                         'created_at') \
-        #                                 .order_by('-created_at')
-        # updated_locations = []
-        # for location in distinct_locations:
-        #     state_code = location.get("stateCode")
-        #     district_code = location.get("districtCode")
-        #     state_name = StateModel.objects.get(pk=state_code).stateNameEnglish # pylint: disable=maybe-no-member
-        #     district_name = DistrictModel.objects.get(pk=district_code).districtNameEnglish # pylint: disable=maybe-no-member
-        #     # Update the location dictionary with state and district names
-        #     location.update({'state_name': state_name, 'district_name': district_name}) 
-        #     # Add the updated location to the list
-        #     updated_locations.append(location)
     else:
-        # subquery = DataModel.objects.only('stateCode','districtCode','created_at') \
-        #                             .distinct('stateCode', 
-        #                                     'districtCode')
 
-        # distinct_locations = DataModel.objects.only('stateCode','districtCode','created_at') \
-        #                             .filter(id__in=Subquery(subquery.values('id'))) \
-        #                             .values('stateCode', 
-        #                                     'districtCode', 
-        #                                     'catagory', 
-        #                                     'created_at') \
-        #                             .order_by('-created_at')
+
+        logging.info("get district locations query ran for all states")
         rows = custom_sql_for_default_display()
         updated_locations = [dict(zip(['stateCode', 'stateNameEnglish', 'districtCode','districtNameEnglish', 'created_at'], row)) for row in rows]
-        # print(updated_locations)
-        # updated_locations = []
-        # for location in distinct_locations:
-        #     state_code = location.get("stateCode")
-        #     district_code = location.get("districtCode")
-        #     state_name = StateModel.objects.get(pk=state_code).stateNameEnglish # pylint: disable=maybe-no-member
-        #     district_name = DistrictModel.objects.get(pk=district_code).districtNameEnglish # pylint: disable=maybe-no-member
-        #     # Update the location dictionary with state and district names
-        #     location.update({'state_name': state_name, 'district_name': district_name}) 
-        #     # Add the updated location to the list
-        #     updated_locations.append(location)
-        # print(distinct_locations)
     Paging = Paginator(updated_locations, 12)
     page_number = request.GET.get('page')
     locations = Paging.get_page(page_number)
+    logging.info("Pagination is implemented")
     if not updated_locations:
         context = {
             'message' : "No result found"
@@ -268,18 +188,6 @@ def display_view(request):
         }
     context['form'] = form
     return render(request, 'frontend/display.html', context)
-
-# def my_custom_sql(self):
-#     cursor = connection.cursor()    
-#     cursor.execute("""select "lgd_statemodel"."id" as "stateCode", 
-#                    "lgd_districtmodel"."id" as "districtCode",
-#                    "lgd_statemodel"."stateNameEnglish" as "stateNameEnglish",
-#                    "lgd_districtmodel"."districtNameEnglish" as "districtNameEnglish",
-#                     from "strategicbi_datamodel" dm
-#                     INNER JOIN "lgd_districtmodel" d ON dm."districtCode" = d."id"
-#                     INNER JOIN "lgd_statemodel" s ON dm."stateCode" = s."id";""")
-#     row = cursor.fetchone()
-#     return row
 
 def custom_sql_for_default_display():
     '''Query to get State district names with a inner join and thier codes'''
@@ -351,13 +259,16 @@ def get_details(request):
     district_code = request.GET.get('districtCode')
     district_name = request.GET.get('districtNameEnglish')
     state_name = request.GET.get('stateNameEnglish')
+    logging.info(f"get_details called with {state_name} , {district_name}")
     # print(state_name, district_name)
     all_catagory_id = CatagoryModel.objects.filter(catagory="all").first().id # pylint: disable=maybe-no-member
     if 'catagory' in request.session:
         catagoryChosen = request.session['catagory']
+        logging.info(f"categoryChosen from session {catagoryChosen}")
         catagory_id = CatagoryModel.objects.get(pk=catagoryChosen).id # pylint: disable=maybe-no-member
     else:
         catagory_id = CatagoryModel.objects.filter(catagory="all").first().id # pylint: disable=maybe-no-member
+        logging.info(f"category not chosen so displaying all")
     if all_catagory_id == catagory_id:
         details = CountModel.objects.filter(
             stateCode=state_code, 
@@ -371,6 +282,7 @@ def get_details(request):
             )   
         for detail in details: 
             detail.update({'district_name': district_name,'state_name': state_name })
+        logging.info(f"category vise data displayed")
     else:
         # details = CountModel.objects.filter(stateCode=state_code, districtCode=district_code).values( # pylint: disable=maybe-no-member
         #     'stateCode', 'districtCode', 'catagory__catagory', 'count'
@@ -388,50 +300,17 @@ def get_details(request):
             )
         for detail in details: 
             detail.update({'district_name': district_name,'state_name': state_name })
+        logging.info(f"category all data displayed")
     print(details)
     data = list(details)
     return JsonResponse(data, safe=False)       
-
-    
-def sign_up(request):
-    '''Sign Up with a custom form'''
-    if request.method == "POST":
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('/home')
-    else:
-        form =  RegistrationForm()
-    return render(request, "registration/signup.html", {"form" : form})
 
 
 def load_districts(request):
     '''dropdown district'''
     state = request.GET.get('state')
     districts = DistrictModel.objects.filter(stateCode = state) # pylint: disable=maybe-no-member
+    logging.info("loding district data for dropdown")
     # print(districts)
     context = {'districts' : districts}
     return render(request, 'dropdown_options/district_options.html', context)
-
-# def load_subdistricts(request):
-#     '''dropdown of subdistrict'''
-#     district_code = request.GET.get('district')
-#     # print(district_code)
-#     # state = StateModel.objects.get(id= state_id) # pylint: disable=maybe-no-member
-#     # print(state)
-#     subdistricts = SubDistrictModel.objects.filter(districtCode = district_code)# pylint: disable=maybe-no-member
-#     # print(subdistricts)
-#     context = {'subdistricts' : subdistricts}
-#     return render(request, 'dropdown_options/subdistrict_options.html', context)
-
-# def load_villages(request):
-#     '''dropdown of subdistrict'''
-#     subdistrict_code = request.GET.get('subdistrict')
-#     print(subdistrict_code)
-#     # state = StateModel.objects.get(id= state_id) # pylint: disable=maybe-no-member
-#     # print(state)
-#     villages = VillageModel.objects.filter(subdistrictCode = subdistrict_code)# pylint: disable=maybe-no-member
-#     # print(villages)
-#     context = {'villages' : villages}
-#     return render(request, 'dropdown_options/village_options.html', context)

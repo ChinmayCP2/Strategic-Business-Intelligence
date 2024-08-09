@@ -6,6 +6,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('frontend/',include('frontend.urls')),
     path('lgd/', include('lgd.urls')),
-    path('', include('strategicbi.urls')),
+    path('bi/', include('strategicbi.urls')),
+    path('', include('auth_app.urls')),
     # path('agg/', include('aggrigations.urls')),
 ] + debug_toolbar_urls()

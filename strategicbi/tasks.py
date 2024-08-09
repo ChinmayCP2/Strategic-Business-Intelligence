@@ -24,6 +24,7 @@ def fetch_and_save_data(state, district):
     assign_category(places)
     logging.info('counting')
     count_places_by_catagory(state,district)
+    return True
 
 def fetch_api_data(state,district):
     '''fetching data from the api for the given district'''
@@ -48,9 +49,11 @@ def fetch_api_data(state,district):
                 "Content-Type": "application/json"
             }
             # making a request to all villages for places data
+            logging.info(f"sending request to send_data for village {village}")
             village_response = requests.post(os.getenv('CATEGORICAL_DATA'), data=json.dumps(village_payload),
                                               headers=headers)
             if village_response.status_code == 200:
+                logging.info('{village} village request status 200')
                 village_places = village_response.json().get("places", [])
                 # print(f"village_places: {village_places}")  # Debugging
                 if isinstance(village_places, list):
@@ -62,18 +65,23 @@ def fetch_api_data(state,district):
                                           'subdistrictCode': subdistrict.subdistrictCode,
                                             'villageCode': village.villageCode})
                     all_places.extend(village_places)
+                    logging.info('village data saved')
                 else:
+                    logging.error('Invalid format for village places')
                     return JsonResponse({'error': 'Invalid format for village places'}, status=500)
             else:
+                logging.error('Failed to get village places')
                 return JsonResponse({'error': 'Failed to get village places'}, status=500)
     return all_places
 
 def save_json(all_places):
     '''saving data to JSONModel as API response'''
     JSONDataModel.objects.all().delete() # pylint: disable=maybe-no-member
+    logging.info('deleted privious json')
     for place in all_places:
         JSONDataModel.objects.get_or_create(jsonData = place) # pylint: disable=maybe-no-member
     places = JSONDataModel.objects.all().values("jsonData") # pylint: disable=maybe-no-member 
+    logging.info('json Data saved')
     return places
 
 def assign_category(places):
@@ -89,19 +97,19 @@ def assign_category(places):
         }   
         if 'displayName' in data:
             display_name = str(data.get('displayName')).lower()
-            place_catagory, created = CatagoryModel.objects.get_or_create(catagory="other") # pylint: disable=maybe-no-member
-
+            # place_catagory, created = CatagoryModel.objects.get_or_create(catagory="other") # pylint: disable=maybe-no-member
         # Iterate over the type mapping
         for catagory, keywords in type_mapping.items():
             for keyword in keywords:
                 if keyword in display_name:
                     place_catagory, created = CatagoryModel.objects.get_or_create(catagory=catagory)  # pylint: disable=maybe-no-member
+                    logging.info(f"category according to {keyword} keyword found or created")
                     break
             if keyword in display_name:
                 break
         DataModel.objects.get_or_create( name= data.get('displayName'),  # pylint: disable=maybe-no-member
                                         # catagory = place.jsonData.get('catagory'),
-                                        catagory = place_catagory,                                    
+                                        catagory = place_catagory or CatagoryModel.objects.get(catagory='other'),                                    
                                         # primaryType = place.jsonData.get('primaryType'),
                                         formattedAddress = data.get('formattedAddress'),
                                         locationLongitude = data.get('location').get('lng'),
@@ -119,34 +127,12 @@ def assign_category(places):
                                         # accessibilityOptions = []
                                         defaults={'id': data.get("uuid")}
                                         )
-
-# def count_places_by_catagory(state,district):
-#     '''The counting function'''
-#     print("counting started")
-#             # After creating/updating DataModel entries, perform the counting operation
-#     annotated_data = DataModel.objects.values('stateCode', 'districtCode',
-#                                               'subdistrictCode',
-#                                               'villageCode', 'catagory').annotate(place_count=Count('id'))
-
-#             # Iterate over the annotated data and update the CountModel
-#     for data in annotated_data:
-            
-#             catagory_instance = CatagoryModel.objects.filter(pk=data['catagory']).first() 
-#             place_count = data['place_count']
-#             # print(catagory)
-#             CountModel.objects.filter(stateCode=state,districtCode=district).update_or_create(
-#                     stateCode=data.get('stateCode'),
-#                     districtCode=data.get('districtCode'),
-#                     subdistrictCode=data.get('subdistrictCode'),
-#                     villageCode=data.get('villageCode'),
-#                     catagory=catagory_instance,
-#                     defaults={'count': place_count}
-#                 )
+        logging.info("place data saved")
 
 def count_places_by_catagory(state, district):
     print("counting started")
     annotated_data = DataModel.objects.filter(stateCode=state, districtCode=district).values('catagory').annotate(place_count=Count('id'))
-
+    logging.info("annoted data for states and districts saved")
     for data in annotated_data:
         catagory_instance = CatagoryModel.objects.get(pk=data['catagory'])
         place_count = data['place_count']
@@ -156,5 +142,6 @@ def count_places_by_catagory(state, district):
             catagory=catagory_instance,
             count=place_count
         )
+    logging.info("count data saved")
 
     
