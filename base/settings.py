@@ -151,6 +151,56 @@ DEBUG_TOOLBAR_CONFIG = {
     'RECORD_REDIRECTS': True,
 }
 
+LOGGING = {
+   'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'simple': {
+            'format': '{asctime} - {levelname} - {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'auth_app': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'auth_app.log',
+            'formatter': 'simple',
+        },
+        'strategicbi': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'strategicbi.log',
+            'formatter': 'simple',
+        },
+        'lgd': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'lgd.log',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'auth_app': {
+            'handlers': ['auth_app'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'strategicbi': {
+            'handlers': ['strategicbi'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'lgd': {
+            'handlers': ['lgd'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
+
 # celery settings
 CELERY_TIMEZONE = "Asia/Kolkata"
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'

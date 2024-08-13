@@ -14,30 +14,31 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="">Navbar</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home'%}">Home</a>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 px-4">
+                <li class="nav-item px-4">
+                    <a class="nav-link" href="{% url 'home'%}"><p class="h5">Home</p></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'fetch'%}">Fetch</a>
+                <li class="nav-item px-4">
+                    <a class="nav-link" href="{% url 'fetch'%}"><p class="h5">Request District Data</p></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'display'%}">Display</a>
+                <li class="nav-item px-4">
+                    <a class="nav-link" href="{% url 'display'%}"><p class="h5">View Data</p></a>
                 </li>
-                
+            </ul>
+            
+            <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
-                    <span class="navbar-text ">Logged in as {{user.username}} | </span>
-                 <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
+                    <span class="navbar-text mr-auto h5">Logged in as {{user.username}} | </span>
+                 <li class="mr-auto nav-item">
+                    <a class="nav-link" href="/logout"><p class="h5">Logout</p></a>
                 </li> 
                 
                 {% else %}
-                <li class="nav-item">
+                <li class="nav-item mr-auto">
                     <a class="nav-link" href="/login">Login</a>
                 </li>
                 {% endif %}

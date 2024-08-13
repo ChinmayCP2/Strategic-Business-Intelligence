@@ -5,116 +5,144 @@
 {% endblock %}
 {% load static %}
 {% block content %} 
-<body>
+<style>
+    .container {
+        margin: auto;
+      }          
+    body{ margin:0 auto; }
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid #ccc;
+        padding: 20px;
+        background-color: #fff;
+        z-index: 1000;
+    }
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
     
-</body>
-    <style>
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid #ccc;
-            padding: 20px;
-            background-color: #fff;
-            z-index: 1000;
-        }
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-    </style>
-    <form method="post" class="w-50 ">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="id_state" class="form-label">State</label>
-            {{ form.state }}
-            <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-    <button  class="btn btn-link"><a href="{% url 'display' %}">Reset</a></button>
-    </div>
-    <br>
-    <table border="1" class="t table table-bordered table-striped">
-        <thead>
-            <tr>
-                
-                <th>State Code</th>
-                <th>District Code</th>
-                <th>Details</th>
-            </tr>
-        </thead>
+</style>
+<body>
+    <div class="container">
+        <!-- <form method="post" class="form-inline text-center">
+            {% csrf_token %}
+            <div class="row mt-5">
+                    <div class="col-md-4 mb-3 ml-5 pl-5">
+                        {{ form.state }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </form> -->
+        <form method="post" class="form-inline text-center">
+            {% csrf_token %}
+            <div class="row justify-content-center mt-2">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.state }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
         
-        <tbody>
-            {% if distinct_locations %}
-            {% for location in distinct_locations %}
-            <tr>
-                <td>{{ location.stateNameEnglish }}</td>
-                <td>{{ location.districtNameEnglish }}</td>
-                <!-- <td>{{ location.state_name }}</td>
-                <td>{{ location.district_name }}</td> -->
-                <td>
-                    <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">View Details</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+        <!-- <button  class="btn btn-link"><a href="{% url 'display' %}">Reset</a></button> -->
+    
+        <br>
+        <div class="px-6 m-2">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        
+                        <th>State Code</th>
+                        <th>District Code</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    {% if distinct_locations %}
+                    {% for location in distinct_locations %}
+                    <tr>
+                        <td>{{ location.stateNameEnglish }}</td>
+                        <td>{{ location.districtNameEnglish }}</td>
+                        <!-- <td>{{ location.state_name }}</td>
+                        <td>{{ location.district_name }}</td> -->
+                        <td>
+                            <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% endif %}
+            </table>
+        </div>
+        {% if message %}
+            <p class="text-center">{{message}}</p> 
         {% endif %}
-    </table>
-    {% if message %}
-        <p class="text-center h2 mt-3">{{message}}</p> 
-    {% endif %}
-    <nav aria-label="Page navigation example">
-        <ul class="pagination">
-            {% if distinct_locations.has_previous %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {% if distinct_locations.has_previous %}
                 <li class="page-item"><a class="page-link" href="?page={{ distinct_locations.previous_page_number }}">Previous</a></li>
-            {% else %}
+              {% else %}
                 <li class="page-item disabled">
-                    <a class="page-link" href="" tabindex="-1" aria-disabled="true">Previous</a>
+                  <a class="page-link" href="" tabindex="-1" aria-disabled="true">Previous</a>
                 </li>
-            {% endif %}   
-            {% if distinct_locations.paginator.num_pages %}
-            <li class="page-item"><a class="page-link" href="">Page {{ distinct_locations.number }} of {{ distinct_locations.paginator.num_pages }}</a></li>
-            {% else %}
-            <li class="page-item"><a class="page-link" href="">0</a></li>
-            {% endif %}
-          {% if distinct_locations.has_next %}
+              {% endif %}   
+              {% if distinct_locations.paginator.num_pages %}
+                <li class="page-item"><a class="page-link" href="">Page {{ distinct_locations.number }} of {{ distinct_locations.paginator.num_pages }}</a></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="">0</a></li>
+              {% endif %}
+              {% if distinct_locations.has_next %}
                 <li class="page-item"><a class="page-link" href="?page={{ distinct_locations.next_page_number }}">Next</a></li>
-            {% else %}
+              {% else %}
                 <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                  <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
                 </li>
-            {% endif %}
-        </ul>
-      </nav>
-    <div class="overlay" id="overlay"></div>
-    <div class="popup" id="popup">
-        <h2>Details</h2>
-        <table id="detailsTable" border="1">
-            <thead>
-                <tr>
-                    <th>State</th>
-                    <th>District</th>
-                    <th>Category</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Details will be loaded here -->
-            </tbody>
-        </table>
-        <button onclick="hidePopup()">Close</button>
-    </div>
+              {% endif %}
+            </ul>
+          </nav>
+        <div class="overlay" id="overlay"></div>
+        <div class="popup" id="popup">
+            <h2>Details</h2>
+            <table id="detailsTable" border="1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>Category</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Details will be loaded here -->
+                </tbody>
+                <!-- <button onclick="window.location.href='get_details?download=true'">Download as CSV</button> -->
+            </table>
+            <a href="{% url 'download-csv' %}">Donwload</a>
+            <button onclick="hidePopup()">Close</button>
+        </div>
+    </div> 
+
+    
 
     <script>
         function showPopup(stateCode, districtCode,stateNameEnglish,districtNameEnglish) {
-            fetch(`/get_details/?stateCode=${stateCode}&districtCode=${districtCode}`)
+            fetch(`get_details/?stateCode=${stateCode}&districtCode=${districtCode}`)
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.querySelector('#detailsTable tbody');
@@ -139,5 +167,5 @@
             document.getElementById('popup').style.display = 'none';
         }
     </script>
-
+</body> 
 {% endblock %}

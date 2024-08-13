@@ -33,11 +33,20 @@ class CatagoryModel(TimeStampedModel):
     def __str__(self):
         return self.catagory + ""
 
-class SummeryModel(TimeStampedModel):
+class PhaseModel(TimeStampedModel):
     '''summery model to indicate phase'''
-    phase = models.CharField(max_length=200, null=True, blank=True)
+    phase = models.CharField(max_length=200,null=True,blank=True, default="Pending")
     def __str__(self):
         return self.phase + ""
+
+class SummeryModel(TimeStampedModel):
+    '''summery model to indicate phase'''
+    phase = models.ForeignKey(PhaseModel, blank=True, on_delete=models.SET_NULL, null=True)
+    districtCode = models.IntegerField(null=True, blank=True)
+    subdistrictCode = models.IntegerField( null=True, blank=True)
+    def __str__(self):
+        return self.phase + ""
+
 
 class DataModel(TimeStampedModel):
     '''data model'''

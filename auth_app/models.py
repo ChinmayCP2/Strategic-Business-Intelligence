@@ -5,13 +5,13 @@ class User(AbstractUser):
 
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='frontend_user_groups',
+        related_name='auth_app_user_groups',
         blank=True,
     )
 
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='frontend_user_permissions',
+        related_name='auth_app_user_permissions',
         blank=True,
     )
 

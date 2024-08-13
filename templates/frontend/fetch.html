@@ -9,7 +9,7 @@
   
 </body>
 <p class="fs-1 mt-4">{{ page_name }}</p>
-<form method="POST">
+<!-- <form method="POST">
   {% csrf_token %}
   <div class="mb-3">
       <label for="id_state" class="form-label">State</label>
@@ -19,25 +19,35 @@
       <label for="id_district" class="form-label">District</label>
       {{ form.district }}
   </div>
-  <!-- <div class="mb-3">
-      <label for="id_subdistrict" class="form-label">Subdistrict</label>
-      {{ form.subdistrict }}
-  </div>
-  <div class="mb-3">
-      <label for="id_village" class="form-label">Village</label>
-      {{ form.village }}
-  </div> -->
+
   <div class="mb-3">
       <label for="id_catagory" class="form-label">Category</label>
       {{ form.catagory }}
   </div>
-  <!-- <div class="mb-3">
-      <label for="id_sorting" class="form-label">Sorting</label>
-      {{ form.sorting }}
-  </div> -->
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
 
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form> -->
+<form class="form-inline" method="POST">
+  {% csrf_token %}
+  <div class="row">
+     
+    <!-- <label for="id_state" class="form-label">State</label> -->
+    <div class="col-md-2 mb-3">
+      {{ form.state }}
+    </div>
+    <!-- <label for="id_district" class="form-label">District</label> -->
+    <div class="col-md-2 mb-3">
+      {{ form.district }}
+    </div>
+    <!-- <label for="id_catagory" class="form-label">Category</label> -->
+    <div class="col-md-2 mb-3">
+      {{ form.catagory }}
+    </div>
+    <div class="col-md-2 mb-3">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
 
 {% if message %}
   <p>{{ message }}</p>
@@ -67,7 +77,8 @@
   </ul>
 {% endif %}
 
-  <script>
+
+  <!-- <script>
     document.addEventListener("DOMContentLoaded", function() {
       const stateSelect = document.getElementById("id_state");
       const districtSelect = document.getElementById("id_district");
@@ -106,5 +117,5 @@
         villageSelect.value = null;
     }
     });
-  </script>
+  </script> -->
 {% endblock %}

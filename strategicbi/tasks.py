@@ -1,28 +1,28 @@
-from celery import shared_task
-from .models import JSONDataModel, DataModel, CatagoryModel, CountModel
-from lgd.models import SubDistrictModel, VillageModel
-# from .views import fetch_api_data, save_json, assign_category
-from django.db.models import Count
-from dotenv import load_dotenv
-import logging
-from django.http import JsonResponse
-import requests
 import os
 import json
+import logging
+import requests
+from celery import shared_task
+from django.http import JsonResponse
+from django.db.models import Count
+from dotenv import load_dotenv
+from lgd.models import SubDistrictModel, VillageModel
+from .models import JSONDataModel, DataModel, CatagoryModel, CountModel
+# from .views import fetch_api_data, save_json, assign_category
 
 load_dotenv()
-logging.basicConfig(level=logging.INFO, filename='log.log', filemode='w',
-                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger('strategicbi')
 
 @shared_task
 def fetch_and_save_data(state, district):
-    logging.info('Starting task')
+    '''fetching and save data functio'''
+    logger.info('Starting task')
     all_places = fetch_api_data(state, district)
-    logging.info('fetch api done starting json save')
+    logger.info('fetch api done starting json save')
     places = save_json(all_places)
-    logging.info('saving extracted data')
+    logger.info('saving extracted data')
     assign_category(places)
-    logging.info('counting')
+    logger.info('counting')
     count_places_by_catagory(state,district)
     return True
 
@@ -49,11 +49,16 @@ def fetch_api_data(state,district):
                 "Content-Type": "application/json"
             }
             # making a request to all villages for places data
-            logging.info(f"sending request to send_data for village {village}")
-            village_response = requests.post(os.getenv('CATEGORICAL_DATA'), data=json.dumps(village_payload),
-                                              headers=headers)
+            logger.info("sending request to send_data for village %s", village)
+            try:
+                village_response = requests.post(os.getenv('CATEGORICAL_DATA'), data=json.dumps(village_payload),
+                                                headers=headers, timeout=10000000000)
+            except requests.exceptions.Timeout:
+                # print("Timed out")
+                logger.error("Time out",exc_info=True)
+                
             if village_response.status_code == 200:
-                logging.info('{village} village request status 200')
+                logger.info('%s village request status 200',village)
                 village_places = village_response.json().get("places", [])
                 # print(f"village_places: {village_places}")  # Debugging
                 if isinstance(village_places, list):
@@ -65,23 +70,23 @@ def fetch_api_data(state,district):
                                           'subdistrictCode': subdistrict.subdistrictCode,
                                             'villageCode': village.villageCode})
                     all_places.extend(village_places)
-                    logging.info('village data saved')
+                    logger.info('village data saved')
                 else:
-                    logging.error('Invalid format for village places')
+                    logger.error('Invalid format for village places')
                     return JsonResponse({'error': 'Invalid format for village places'}, status=500)
             else:
-                logging.error('Failed to get village places')
+                logger.error('Failed to get village places')
                 return JsonResponse({'error': 'Failed to get village places'}, status=500)
     return all_places
 
 def save_json(all_places):
     '''saving data to JSONModel as API response'''
     JSONDataModel.objects.all().delete() # pylint: disable=maybe-no-member
-    logging.info('deleted privious json')
+    logger.info('deleted privious json')
     for place in all_places:
         JSONDataModel.objects.get_or_create(jsonData = place) # pylint: disable=maybe-no-member
     places = JSONDataModel.objects.all().values("jsonData") # pylint: disable=maybe-no-member 
-    logging.info('json Data saved')
+    logger.info('json Data saved')
     return places
 
 def assign_category(places):
@@ -103,7 +108,7 @@ def assign_category(places):
             for keyword in keywords:
                 if keyword in display_name:
                     place_catagory, created = CatagoryModel.objects.get_or_create(catagory=catagory)  # pylint: disable=maybe-no-member
-                    logging.info(f"category according to {keyword} keyword found or created")
+                    logger.info("category according to %s keyword found or created", keyword)
                     break
             if keyword in display_name:
                 break
@@ -127,21 +132,24 @@ def assign_category(places):
                                         # accessibilityOptions = []
                                         defaults={'id': data.get("uuid")}
                                         )
-        logging.info("place data saved")
+        logger.info("place data saved")
 
 def count_places_by_catagory(state, district):
+    '''count function'''
     print("counting started")
-    annotated_data = DataModel.objects.filter(stateCode=state, districtCode=district).values('catagory').annotate(place_count=Count('id'))
-    logging.info("annoted data for states and districts saved")
+    annotated_data = DataModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
+                                               districtCode=district).values('catagory'). \
+                                                annotate(place_count=Count('id'))
+    logger.info("annoted data for states and districts saved")
     for data in annotated_data:
-        catagory_instance = CatagoryModel.objects.get(pk=data['catagory'])
+        catagory_instance = CatagoryModel.objects.get(pk=data['catagory']) # pylint: disable=maybe-no-member
         place_count = data['place_count']
-        CountModel.objects.create(
+        CountModel.objects.create(  # pylint: disable=maybe-no-member
             stateCode=state,
             districtCode=district,
             catagory=catagory_instance,
             count=place_count
         )
-    logging.info("count data saved")
+    logger.info("count data saved")
 
     
