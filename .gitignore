@@ -1,3 +1,6 @@
 env
 __pycache__
 .env
+auth_app.log
+strategicbi.log
+lgd.log
