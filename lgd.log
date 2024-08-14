@@ -1,1 +1,15 @@
 2024-08-13 11:03:10,266 - INFO - State Data saved
+2024-08-14 12:12:59,739 - INFO - State Data saved to the database
+2024-08-14 12:13:30,260 - INFO - State Data saved to the database
+2024-08-14 12:14:34,045 - INFO - State Data saved to the database
+2024-08-14 12:14:36,764 - INFO - State Data saved to the database
+2024-08-14 12:14:55,499 - INFO - District Data saved
+2024-08-14 12:17:43,967 - INFO - subdistrict Data saved with status code 503
+2024-08-14 12:34:18,769 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:40:51,680 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:42:34,179 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:42:54,664 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:43:13,916 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:44:24,571 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:47:32,588 - ERROR - Exception in sending the subdistrict request - ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-08-14 12:50:05,710 - INFO - village data saved

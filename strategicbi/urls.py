@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -14,7 +14,7 @@ urlpatterns = [
     path('display/download-csv/', views.download_csv, name='download-csv'),
     # path("view-all/",views.view_all, name="view-all"),
     path('home/load-districts/', views.load_districts, name='load_districts'),
-
+    path('fetch/load-districts/', views.load_districts, name='load_districts'),
     # path('load-subdistricts/', views.load_subdistricts, name='load_subdistricts'),
     # path('load-villages/', views.load_villages, name='load_villages'),
 ]

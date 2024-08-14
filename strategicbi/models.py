@@ -43,9 +43,10 @@ class SummeryModel(TimeStampedModel):
     '''summery model to indicate phase'''
     phase = models.ForeignKey(PhaseModel, blank=True, on_delete=models.SET_NULL, null=True)
     districtCode = models.IntegerField(null=True, blank=True)
-    subdistrictCode = models.IntegerField( null=True, blank=True)
-    def __str__(self):
-        return self.phase + ""
+    district_name = models.CharField(max_length=200, null=True, blank=True)
+    state_name = models.CharField(max_length=200, null=True, blank=True)
+    stateCode = models.IntegerField( null=True, blank=True)
+    
 
 
 class DataModel(TimeStampedModel):

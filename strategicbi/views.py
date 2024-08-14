@@ -1,3 +1,4 @@
+'''views strageticbi'''
 import csv
 import json
 import logging
@@ -12,11 +13,12 @@ from django.db.models import Sum
 from django.db import connection
 from django.core.paginator import Paginator
 from dotenv import load_dotenv
-from lgd.models import DistrictModel
+from lgd.models import DistrictModel, StateModel
 from .forms import LocationForm, StateForm
-from .models import DataModel, CatagoryModel, CountModel
+from .models import DataModel, CatagoryModel, CountModel, SummeryModel, PhaseModel
 from .generate import generate_random_places
 from .tasks import fetch_and_save_data
+
 # Create your views here.
 load_dotenv()
 logger = logging.getLogger("strategicbi")
@@ -47,10 +49,16 @@ def home(request):
             logger.info("redirect to fetch message %s and %s saved",request.session['state'],
                         request.session['district'])
             return HttpResponseRedirect(reverse('fetch-message'))
+        
+    summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
+                                                                           'state_name',
+                                                                           'district_name',
+                                                                           'phase__phase')[:10][::-1]
+    print(summeries)
+    context['summeries'] = summeries
     context['form'] = form
     context['page_name'] = "Home Page Form"
     return render(request, 'frontend/fetch.html', context)
-
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
@@ -59,7 +67,6 @@ def fetch_message(request):
     logger.info("Feth message displayed")
     return render(request, 'frontend/fetch_message.html')
 
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
 def fetch_function(request):
@@ -67,12 +74,19 @@ def fetch_function(request):
     logger.info("fetch function called")
     state = request.session['state'] 
     district = request.session['district'] 
-    # all_places = asyncio.run(fetch_api_data(state,district))
-    # all_places = async_to_sync(fetch_api_data(state,district))(state,district)
-    # all_places = fetch_api_data(state,district)
-    # places = save_json(all_places)
-    # assign_category(places)
-    # count_places_by_catagory()
+    print(state, district)
+    state_name = StateModel.objects.filter(pk=state).values('stateNameEnglish').first()  # pylint: disable=maybe-no-member
+    print(state)
+    print(state_name) 
+    district_name = DistrictModel.objects.filter(pk=district).values('districtNameEnglish').first()  # pylint: disable=maybe-no-member
+    print(district)
+    print(district_name)
+    summery = SummeryModel.objects.create(phase=PhaseModel.objects.get(phase='Pending'), # pylint: disable=maybe-no-member
+                                           stateCode=state,
+                                             districtCode=district,
+                                             state_name = state_name.get("stateNameEnglish"),
+                                             district_name = district_name.get("districtNameEnglish"))  
+    print(summery)
     fetch_and_save_data.delay(state, district)
     if 'state' in request.session:
             logger.info("state %s deleting after fetching is done ", request.session['state'])
@@ -146,10 +160,15 @@ def fetch_screen(request):
         fetch_function(request)
         # return render(request,'temp.html')
         return HttpResponseRedirect(reverse('display'))
+    summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
+                                                                           'state_name',
+                                                                           'district_name',
+                                                                           'phase__phase')[:10][::-1]
+    print(summeries)
+    context['summeries'] = summeries
     context['page_name'] = "Fetch    Page Form"
     context['form'] = form
     return render(request, 'frontend/fetch.html', context)
-
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
@@ -286,9 +305,6 @@ def get_details(request):
         
         logger.info("category vise data displayed")
     else:
-        # details = CountModel.objects.filter(stateCode=state_code, districtCode=district_code).values( # pylint: disable=maybe-no-member
-        #     'stateCode', 'districtCode', 'catagory__catagory', 'count'
-        # )
         details = CountModel.objects.filter(   # pylint: disable=maybe-no-member
             stateCode=state_code, 
             districtCode=district_code,
@@ -308,7 +324,7 @@ def get_details(request):
     data = list(details)
     request.session['data'] = data
     print(data)
-    return JsonResponse(data, safe=False)       
+    return JsonResponse(data, safe=False)  
 
 def download_csv(request):
     '''download csv function'''
@@ -333,28 +349,7 @@ def load_districts(request):
     state = request.GET.get('state')
     districts = DistrictModel.objects.filter(stateCode = state) # pylint: disable=maybe-no-member
     logger.info("loding district data for dropdown")
-    # print(districts)
     context = {'districts' : districts}
     return render(request, 'dropdown_options/district_options.html', context)
 
-# def export_csv(request):
-#     '''csv download'''
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="details.csv"'
-#     if 'details' in request.session:
-#         details = request.session['details']
-#     writer = csv.writer(response)
-#     writer.writerow(['State Code', 'District Code', 'Category', 'Count', 'District Name', 'State Name'])
-#     for detail in details:
-#         writer.writerow([
-#             detail['stateCode'],
-#             detail['districtCode'],
-#             detail['catagory__catagory'],
-#             detail['count'],
-#             detail['district_name'],
-#             detail['state_name']
-#         ])
-#         if 'details' in request.session:
-#             del request.session['details']
-#     return response
     

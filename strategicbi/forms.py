@@ -1,3 +1,4 @@
+'''forms for strategicbi'''
 from django import forms
 
 from lgd.models import StateModel, DistrictModel
@@ -13,35 +14,11 @@ class StateForm(forms.Form):
                                     widget=forms.Select(attrs={
                                     "class": "form-select","id": "id_state"})) # pylint: disable=maybe-no-member
 
-# class LocationForm(forms.Form):
-#     '''Select location form'''
-#     state = forms.ModelChoiceField(
-#         queryset=StateModel.objects.all(), # pylint: disable=maybe-no-member
-#         widget=forms.Select(attrs={
-#             "class": "form-select w-50","id": "id_state",
-#             "hx-get": "load-districts/?state={{ value }}",
-#             "hx-target": "#id_district",
-#         })
-#     )
-#     district = forms.ModelChoiceField(
-#         queryset=DistrictModel.objects.none(), # pylint: disable=maybe-no-member
-#         initial=None,
-#         widget=forms.Select(attrs={
-#             "class": "form-select w-50","id": "id_district",
-#         })
-#     )
-#     catagory = forms.ModelChoiceField(
-#         queryset=CatagoryModel.objects.all().distinct('catagory'), # pylint: disable=maybe-no-member
-#         initial= CatagoryModel.objects.get(catagory="all"),
-#         widget=forms.Select(attrs={
-#             "class": "form-select w-50", "id": "id_catagory"
-#         })
-#     )
     
 class LocationForm(forms.Form):
     '''Select location form'''
     state = forms.ModelChoiceField(
-        queryset=StateModel.objects.all(), 
+        queryset=StateModel.objects.all(),  # pylint: disable=maybe-no-member
         widget=forms.Select(attrs={
             "class": "form-select",
             "id": "id_state",
@@ -51,7 +28,7 @@ class LocationForm(forms.Form):
         }),
     )
     district = forms.ModelChoiceField(
-        queryset=DistrictModel.objects.none(), 
+        queryset=DistrictModel.objects.none(),  # pylint: disable=maybe-no-member
         initial=None,
         widget=forms.Select(attrs={
             "class": "form-select",
@@ -59,8 +36,8 @@ class LocationForm(forms.Form):
         })
     )
     catagory = forms.ModelChoiceField(
-        queryset=CatagoryModel.objects.all().distinct('catagory'), 
-        initial= CatagoryModel.objects.get(catagory="all"),
+        queryset=CatagoryModel.objects.all().distinct('catagory'),  # pylint: disable=maybe-no-member
+        initial= CatagoryModel.objects.get(catagory="all"), # pylint: disable=maybe-no-member
         widget=forms.Select(attrs={
             "class": "form-select",
             "id": "id_catagory",

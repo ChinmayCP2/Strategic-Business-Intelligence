@@ -53,25 +53,21 @@
   <p>{{ message }}</p>
 {% endif %}
 
-{% if places %}
+{% if summeries %}
 <table class="table">
   <tr>
-    <th scope="col">Place</th>
-    <th scope="col">Address</th>
-    <th scope="col">Google Maps</th>
-    <th scope="col">Status</th>
-    <th scope="col">Rating</th>
-    <th scope="col">userRatingCount</th>
+    <th scope="col">State</th>
+    <th scope="col">District</th>
+    <th scope="col">Phase</th>
+    <!-- <th scope="col">Last Updated</th> -->
+
   </tr>
 
-  {% for place in places %}
+  {% for summery in summeries %}
       <tr>
-        <td scope="row">{{ place.name }}</td>
-        <td>{{ place.formattedAddress }}</td>
-        <td><a href="{{ place.googleMapsUri }}">Link</a></td>
-        <td>{{ place.businessStatus }}</td>
-        <td>{{ place.rating }}</td>
-        <td>{{ place.userRatingCount }}</td>
+        <td scope="row">{{ summery.state_name }}</td>
+        <td>{{ summery.district_name }}</td>
+        <td>{{ summery.phase__phase }}</td>
       </tr>
   {% endfor %}
   </ul>
