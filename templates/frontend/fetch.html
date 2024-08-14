@@ -1,5 +1,4 @@
 {% extends 'base.html'%}
-{% load crispy_forms_tags %}
 {% block title %}
   Fetch API Data
 {% endblock %}
@@ -33,17 +32,20 @@
      
     <!-- <label for="id_state" class="form-label">State</label> -->
     <div class="col-md-2 mb-3">
+      <label for="#id_state">State : </label>
       {{ form.state }}
     </div>
     <!-- <label for="id_district" class="form-label">District</label> -->
     <div class="col-md-2 mb-3">
+      <label for="#id_district">District : </label>
       {{ form.district }}
     </div>
     <!-- <label for="id_catagory" class="form-label">Category</label> -->
     <div class="col-md-2 mb-3">
+      <label for="#id_catagory">Category : </label>
       {{ form.catagory }}
     </div>
-    <div class="col-md-2 mb-3">
+    <div class="col-md-2 mb-3" style="margin-top: 23px;">
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
   </div>
