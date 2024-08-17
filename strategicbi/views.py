@@ -18,6 +18,7 @@ from .forms import LocationForm, StateForm
 from .models import DataModel, CatagoryModel, CountModel, SummeryModel, PhaseModel
 from .generate import generate_random_places
 from .tasks import fetch_and_save_data
+from django.contrib import messages
 
 # Create your views here.
 load_dotenv()

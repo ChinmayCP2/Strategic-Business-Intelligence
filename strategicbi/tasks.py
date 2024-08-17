@@ -37,6 +37,18 @@ def fetch_and_save_data(state, district):
     summery.phase = phase
     summery.save()
     return True
+# @shared_task
+# def fetch_and_save_data(state, district):
+#     '''fetching and save data function'''
+#     logger.info('Starting task') 
+#     all_places = fetch_api_data(state, district)
+#     logger.info('fetch api done starting json save')
+#     places = save_json(all_places)
+#     logger.info('saving extracted data')
+#     assign_category(places)
+#     logger.info('counting')
+#     count_places_by_catagory(state,district)
+#     return True
 
 def fetch_api_data(state,district):
     '''fetching data from the api for the given district'''
@@ -104,7 +116,7 @@ def save_json(all_places):
 
 def assign_category(places):
     '''assigning catagory and extracting data into DataModel'''
-    place_catagory = CatagoryModel.objects.get_or_create(catagory='other')
+    place_catagory = CatagoryModel.objects.get_or_create(catagory='other') # pylint: disable=maybe-no-member 
     for place in places:
         data = place.get("jsonData")
         type_mapping = {

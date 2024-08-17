@@ -62,6 +62,13 @@
         <!-- <button  class="btn btn-link"><a href="{% url 'display' %}">Reset</a></button> -->
     
         <br>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         <div class="px-6 m-2">
             <table class="table table-bordered table-hover">
                 <thead>
