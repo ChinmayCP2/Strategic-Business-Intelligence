@@ -312,7 +312,7 @@ def get_details(request):
             catagory = catagory_id
             ).values(
                 'stateCode', 
-                'districtCode', 
+                'districtCode',
                 'catagory__catagory'
             ).annotate(
                 count=Sum('count')

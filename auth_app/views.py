@@ -2,9 +2,17 @@ from django.shortcuts import render, redirect
 import logging
 from .forms import RegistrationForm
 from django.contrib.auth import login
+from django.contrib.auth import views as auth_views
+from .forms import CustomLoginForm
+
 # Create your views here.
 
 logger = logging.getLogger('auth_app')
+
+class CustomLoginView(auth_views.LoginView):
+    '''login page'''
+    form_class = CustomLoginForm
+    template_name = 'registration/login.html'
 
 def sign_up(request):
     '''Sign Up with a custom form'''
@@ -15,7 +23,7 @@ def sign_up(request):
             user = form.save()
             logger.info("registration form accepted")
             login(request, user)
-            return redirect('auth/home')
+            return redirect('home')
     else:
         form =  RegistrationForm()
         logger.info("Displaying Registration form")

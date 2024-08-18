@@ -133,7 +133,8 @@ def assign_category(places):
         for catagory, keywords in type_mapping.items():
             for keyword in keywords:
                 if keyword in display_name:
-                    place_catagory, created = CatagoryModel.objects.get_or_create(catagory=catagory)  # pylint: disable=maybe-no-member
+                    place_catagory, created = CatagoryModel.objects.get_or_create(catagory=catagory, # pylint: disable=maybe-no-member
+                                                                                   subCatagory = keyword)
                     # print(place_catagory)
                     logger.info("category according to %s keyword found or created", keyword)
                     break
