@@ -1,7 +1,13 @@
 .container {
     margin: auto;
   }          
-body{ margin:0 auto; }
+body{ margin:0 auto;
+    background: linear-gradient(90deg, rgb(225, 225, 225) 0%, rgb(224, 224, 224) 50%);
+    font-family: "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+}
 .popup {
     display: none;
     position: fixed;
@@ -26,6 +32,19 @@ body{ margin:0 auto; }
 .alert {
     z-index: 10; /* Ensure the alert is on top */
 }
-table {
+tr td {
     border: 1px solid;
+    background: linear-gradient(90deg, rgb(225, 225, 225) 0%, rgb(224, 224, 224) 50%);
+    font-family: "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    border: none;
   }
+.navar{
+    background: linear-gradient(90deg, rgb(225, 225, 225) 0%, rgb(224, 224, 224) 50%);
+    font-family: "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-100 { font-size: 100px; }

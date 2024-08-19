@@ -41,7 +41,16 @@ class PhaseModel(TimeStampedModel):
 
 class SummeryModel(TimeStampedModel):
     '''summery model to indicate phase'''
-    phase = models.ForeignKey(PhaseModel, blank=True, on_delete=models.SET_NULL, null=True)
+    # phase = models.ForeignKey(PhaseModel, blank=True, on_delete=models.SET_NULL, null=True)
+    STATUS_CHOICES = (
+    ("Completed", 'Completed'),
+    ("Pending", 'Pending'),
+    ("Started", 'Started'),
+    ("Failed", "Failed")
+    )
+    fetch_status = models.CharField(default="Pending", choices=STATUS_CHOICES, max_length = 200)
+    extraction_status = models.CharField(default="Pending", choices=STATUS_CHOICES, max_length = 200)
+    aggrigation_status = models.CharField(default="Pending", choices=STATUS_CHOICES, max_length = 200)
     districtCode = models.IntegerField(null=True, blank=True)
     district_name = models.CharField(max_length=200, null=True, blank=True)
     state_name = models.CharField(max_length=200, null=True, blank=True)

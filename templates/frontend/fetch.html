@@ -8,6 +8,7 @@
 <!-- <body>
   
 </body> -->
+<link rel="stylesheet" href="{% static 'css/fetch_styles.css' %}">
 {% if messages %}
   <div class="container mt-3">
       {% for message in messages %}
@@ -74,20 +75,24 @@
 {% endif %}
 
 {% if summeries %}
-<table class="table">
+<table class="table table-bordered table-hover mt-4">
   <tr>
     <th scope="col">State</th>
     <th scope="col">District</th>
-    <th scope="col">Phase</th>
+    <th scope="col">Fetching Status</th>
+    <th scope="col">Extraction Status</th>
+    <th scope="col">Aggrigation Status</th>
     <!-- <th scope="col">Last Updated</th> -->
 
   </tr>
-
+  
   {% for summery in summeries %}
       <tr>
         <td scope="row">{{ summery.state_name }}</td>
         <td>{{ summery.district_name }}</td>
-        <td>{{ summery.phase__phase }}</td>
+        <td>{{ summery.fetch_status }}</td>
+        <td>{{ summery.extraction_status }}</td>
+        <td>{{ summery.aggrigation_status }}</td>
       </tr>
   {% endfor %}
   </ul>

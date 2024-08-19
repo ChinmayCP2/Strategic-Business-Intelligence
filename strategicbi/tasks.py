@@ -21,65 +21,40 @@ logger = logging.getLogger('strategicbi')
 @shared_task
 def fetch_and_save_data(state, district,user_id):
     '''fetching and save data function'''
-    user = User.objects.get(id=user_id)
-    district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
-                                                  districtCode = district) 
-    completed_phase = PhaseModel.objects.filter(phase = "Completed").first() # pylint: disable=maybe-no-member
-    incomplete_status = district_status.exclude(phase=completed_phase)
-    print(incomplete_status.values('district_name','phase_id'))
-    if not incomplete_status.exists():
-        cache.set(f'task_status_{user_id}', 'Your task has been accepted!', timeout=3600)
-        state_name = StateModel.objects.filter(pk=state).values('stateNameEnglish').first()  # pylint: disable=maybe-no-member
-        # print(state)
-        print(state_name) 
-        district_name = DistrictModel.objects.filter(pk=district).values('districtNameEnglish').first()  # pylint: disable=maybe-no-member
-        # print(district)
-        # print(district_name)
-        SummeryModel.objects.update_or_create(stateCode=state, # pylint: disable=maybe-no-member
-                                                districtCode=district,
-                                                state_name = state_name.get("stateNameEnglish"),
-                                                district_name = district_name.get("districtNameEnglish"),
-                                                defaults={'phase' : PhaseModel.objects.filter(phase="Pending").first()}) # pylint: disable=maybe-no-member  
-        logger.info('Starting task') 
-        summery = SummeryModel.objects.get(stateCode = state, districtCode = district) # pylint: disable=maybe-no-member
-        phase, created = PhaseModel.objects.get_or_create(phase='Fetching') # pylint: disable=maybe-no-member
-        summery.phase = phase
-        summery.save()
-        all_places = fetch_api_data(state, district)
-        print(all_places)
-        logger.info('fetch api done starting json save')
-        places = save_json(all_places)
-        phase, created = PhaseModel.objects.get_or_create(phase='Extraction') # pylint: disable=maybe-no-member
-        summery.phase = phase
-        summery.save()
-        logger.info('saving extracted data')
-        assign_category(places)
-        print(places)
-        phase, created = PhaseModel.objects.get_or_create(phase='Aggrigation') # pylint: disable=maybe-no-member
-        summery.phase = phase
-        summery.save()
-        logger.info('counting')
-        count_places_by_catagory(state,district)
-        phase, created = PhaseModel.objects.get_or_create(phase='Completed') # pylint: disable=maybe-no-member
-        summery.phase = phase
-        summery.save()
-        message = "The Processing for the requested data has begun..."
-        # messages.info(request, "The Processing for the requested data has begun...")
-        return True
-    # messages.info(request, "The DIstrict Selected is already Processing")
-    return False
-# @shared_task
-# def fetch_and_save_data(state, district):
-#     '''fetching and save data function'''
-#     logger.info('Starting task') 
-#     all_places = fetch_api_data(state, district)
-#     logger.info('fetch api done starting json save')
-#     places = save_json(all_places)
-#     logger.info('saving extracted data')
-#     assign_category(places)
-#     logger.info('counting')
-#     count_places_by_catagory(state,district)
-#     return True
+    # user = User.objects.get(id=user_id)
+    # district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
+    #                                               districtCode = district) 
+    # # completed_phase = PhaseModel.objects.filter(phase = "Completed").first() # pylint: disable=maybe-no-member
+    # # incomplete_status = district_status.exclude(phase=completed_phase)
+    # # print(incomplete_status.values('district_name','phase_id'))
+    # if not district_status.exists():
+        # cache.set(f'task_status_{user_id}', 'Your task has been accepted!', timeout=3600)
+    logger.info('Starting task') 
+    all_places = fetch_api_data(state, district)
+    SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
+                                            districtCode=district) \
+                            .update(fetch_status = "Completed",
+                                    extraction_status = "Started",
+                                    aggrigation_status = "Pending")
+    print(all_places)
+    logger.info('fetch api done starting json save')
+    places = save_json(all_places)
+    logger.info('saving extracted data')
+    assign_category(places)
+    SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
+                                            districtCode=district) \
+                            .update(fetch_status = "Completed",
+                                    extraction_status = "Completed",
+                                    aggrigation_status = "Started")
+    print(places)
+    logger.info('counting')
+    count_places_by_catagory(state,district)
+    SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
+                                            districtCode=district).delete()                            
+    # message = "The Processing for the requested data has begun..."
+    return True
+    # return False
+
 
 def fetch_api_data(state,district):
     '''fetching data from the api for the given district'''

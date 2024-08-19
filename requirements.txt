@@ -9,5 +9,7 @@ redis
 celery
 django-celery-results
 gevent
+django-session-timeout
 # flower
 # django-debug-toolbar
+sphinx

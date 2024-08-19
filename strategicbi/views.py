@@ -16,9 +16,9 @@ from django.contrib import messages
 from dotenv import load_dotenv
 # from django.contrib.messages import get_messages
 # from django.core.cache import cache
-from lgd.models import DistrictModel
+from lgd.models import DistrictModel, StateModel
 from .forms import LocationForm, StateForm
-from .models import DataModel, CatagoryModel, CountModel, SummeryModel, PhaseModel
+from .models import DataModel, CatagoryModel, CountModel, SummeryModel
 from .generate import generate_random_places
 from .tasks import fetch_and_save_data
 
@@ -59,7 +59,9 @@ def home(request):
     summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
                                                                            'district_name',
-                                                                           'phase__phase')[:10][::-1]
+                                                                           'fetch_status',
+                                                                           'extraction_status',
+                                                                           'aggrigation_status')[:10][::-1]
     # print(summeries)
     context['summeries'] = summeries
     context['form'] = form
@@ -80,16 +82,32 @@ def fetch_function(request):
     logger.info("fetch function called")
     state = request.session['state'] 
     district = request.session['district'] 
+    state_name = StateModel.objects.filter(pk=state).values('stateNameEnglish').first()  # pylint: disable=maybe-no-member
+        # print(state)
+    # print(state_name) 
+    district_name = DistrictModel.objects.filter(pk=district).values('districtNameEnglish').first()  # pylint: disable=maybe-no-member
+        
+
     # checking if the district chosen is already in a task or if its pending 
     district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
                                                   districtCode = district) 
-    completed_phase = PhaseModel.objects.filter(phase = "Completed").first() # pylint: disable=maybe-no-member
-    incomplete_status = district_status.exclude(phase=completed_phase)
-    print(incomplete_status.values('district_name','phase_id'))
-    if incomplete_status.exists():
+
+    print(district_status.values('district_name'))
+    if district_status.exists():
         # if yes the task is not started
+        SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
+                                     districtCode=district).update(fetch_status = "Failed",
+                                     extraction_status = "Failed",
+                                     aggrigation_status = "Failed")
         messages.warning(request, "The District is already processing")
-    else:   
+    else:
+        SummeryModel.objects.create(stateCode=state, # pylint: disable=maybe-no-member
+                                        districtCode=district,
+                                        district_name = district_name.get("districtNameEnglish"),
+                                        state_name = state_name.get("stateNameEnglish") , 
+                                        fetch_status = "Started",
+                                        extraction_status = "Pending",
+                                        aggrigation_status = "Pending")
         user_id = request.user.id
         fetch_and_save_data.delay(state, district,user_id)
         # deleting previously saved state and district for the next process
@@ -130,7 +148,7 @@ def send_json_response(request):
             if village_code:
                 logger.info("random data generation started")
                 # generating random data
-                places = generate_random_places(random.randint(0, 1))
+                places = generate_random_places(random.randint(1, 2))
 
             print(places)
             return JsonResponse({'places': places}, status=200)
@@ -176,7 +194,9 @@ def fetch_screen(request):
     summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
                                                                            'district_name',
-                                                                           'phase__phase')[:10][::-1]
+                                                                           'fetch_status',
+                                                                           'extraction_status',
+                                                                           'aggrigation_status')[:10][::-1]
     print(summeries)
     context['summeries'] = summeries
     context['page_name'] = "Fetch Page Form"
@@ -366,5 +386,3 @@ def load_districts(request):
     logger.info("loding district data for dropdown")
     context = {'districts' : districts}
     return render(request, 'dropdown_options/district_options.html', context)
-
-    
