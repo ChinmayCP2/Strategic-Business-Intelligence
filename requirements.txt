@@ -9,5 +9,5 @@ redis
 celery
 django-celery-results
 gevent
-urllib3==1.25.10
+# flower
 # django-debug-toolbar

@@ -5,35 +5,19 @@
 {% endblock %}
 {% load static %}
 {% block content %} 
-<style>
-    .container {
-        margin: auto;
-      }          
-    body{ margin:0 auto; }
-    .popup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 1px solid #ccc;
-        padding: 20px;
-        background-color: #fff;
-        z-index: 1000;
-    }
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-    
-</style>
+<link rel="stylesheet" href="{% static 'css/display_styles.css' %}">
 <body>
+    {% include 'includes/navbar.html' %}
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
     <div class="container">
         <!-- <form method="post" class="form-inline text-center">
             {% csrf_token %}
@@ -62,13 +46,6 @@
         <!-- <button  class="btn btn-link"><a href="{% url 'display' %}">Reset</a></button> -->
     
         <br>
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
         <div class="px-6 m-2">
             <table class="table table-bordered table-hover">
                 <thead>
@@ -126,7 +103,10 @@
         <div class="overlay" id="overlay"></div>
         <div class="popup" id="popup">
             <h2>Details</h2>
-            <table id="detailsTable" border="1" class="table table-bordered table-striped">
+            <div id="tableContainer">
+                <!-- The dynamically generated table will be injected here -->
+            </div>
+            <!-- <table id="detailsTable" border="1" class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>State</th>
@@ -136,10 +116,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Details will be loaded here -->
+                    
                 </tbody>
-                <!-- <button onclick="window.location.href='get_details?download=true'">Download as CSV</button> -->
-            </table>
+                
+            </table> -->
             <a href="{% url 'download-csv' %}">Donwload</a>
             <button onclick="hidePopup()">Close</button>
         </div>
@@ -152,18 +132,46 @@
             fetch(`get_details/?stateCode=${stateCode}&districtCode=${districtCode}`)
                 .then(response => response.json())
                 .then(data => {
-                    const tableBody = document.querySelector('#detailsTable tbody');
-                    tableBody.innerHTML = '';
-                    data.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${stateNameEnglish}</td>
-                            <td>${districtNameEnglish}</td>
-                            <td>${item.catagory__catagory}</td>
-                            <td>${item.count}</td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
+            let tableHTML = `
+                <table id="detailsTable" border="1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>State</th>
+                            <th>District</th>
+                            <th>Category</th>`;
+
+            // Check if any item has a subcategory to decide whether to add the SubCategory column
+            const hasSubCategory = data.some(item => item.catagory__subCatagory);
+
+            if (hasSubCategory) {
+                tableHTML += `<th>SubCategory</th>`;
+            }
+
+            tableHTML += `<th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            // Generate table rows
+            data.forEach(item => {
+                tableHTML += `<tr>
+                                <td>${stateNameEnglish}</td>
+                                <td>${districtNameEnglish}</td>
+                                <td>${item.catagory__catagory}</td>`;
+                
+                if (hasSubCategory) {
+                    tableHTML += `<td>${item.catagory__subCatagory || ''}</td>`;
+                }
+
+                tableHTML += `<td>${item.count}</td>
+                            </tr>`;
+            });
+
+            tableHTML += `</tbody></table>`;
+
+            // Set the generated table HTML to a container element
+            document.getElementById('tableContainer').innerHTML = tableHTML;
+                    
                     document.getElementById('overlay').style.display = 'block';
                     document.getElementById('popup').style.display = 'block';
                 });

@@ -12,13 +12,15 @@ from django.views.decorators.cache import cache_control
 from django.db.models import Sum
 from django.db import connection
 from django.core.paginator import Paginator
+from django.contrib import messages
 from dotenv import load_dotenv
-from lgd.models import DistrictModel, StateModel
+# from django.contrib.messages import get_messages
+# from django.core.cache import cache
+from lgd.models import DistrictModel
 from .forms import LocationForm, StateForm
 from .models import DataModel, CatagoryModel, CountModel, SummeryModel, PhaseModel
 from .generate import generate_random_places
 from .tasks import fetch_and_save_data
-from django.contrib import messages
 
 # Create your views here.
 load_dotenv()
@@ -32,30 +34,33 @@ def home(request):
     logger.info("displayed the form")
     context = {}
     if 'catagory' in request.session:
-            del request.session['catagory']
-            logger.info("category saved in the session")
-    if request.method == 'POST':   
+        # deleting previously saved category
+        del request.session['catagory']
+        logger.info("category saved in the session")
+    if request.method == 'POST':
         logger.info("Form submitted")
         data = request.POST
         state = data.get('state')
         district = data.get('district')
         request.session['catagory'] = data.get('catagory')
         if DataModel.objects.filter(stateCode = state, districtCode = district).exists(): # pylint: disable=maybe-no-member
+            # if district data is present display view is loaded
             logger.info("The district data found so redirected to display")
             return HttpResponseRedirect(reverse('display'))
         else:
+            # sending user a message if he wishes to fetch the district data 
             logger.info("The district data not found so redirected to fetch message")
             request.session['state'] = state
             request.session['district'] = district
             logger.info("redirect to fetch message %s and %s saved",request.session['state'],
                         request.session['district'])
             return HttpResponseRedirect(reverse('fetch-message'))
-        
+    # displaying last 10 districts loaded and thier status
     summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
                                                                            'district_name',
                                                                            'phase__phase')[:10][::-1]
-    print(summeries)
+    # print(summeries)
     context['summeries'] = summeries
     context['form'] = form
     context['page_name'] = "Home Page Form"
@@ -75,28 +80,31 @@ def fetch_function(request):
     logger.info("fetch function called")
     state = request.session['state'] 
     district = request.session['district'] 
-    print(state, district)
-    state_name = StateModel.objects.filter(pk=state).values('stateNameEnglish').first()  # pylint: disable=maybe-no-member
-    print(state)
-    print(state_name) 
-    district_name = DistrictModel.objects.filter(pk=district).values('districtNameEnglish').first()  # pylint: disable=maybe-no-member
-    print(district)
-    print(district_name)
-    summery = SummeryModel.objects.create(phase=PhaseModel.objects.get(phase='Pending'), # pylint: disable=maybe-no-member
-                                           stateCode=state,
-                                             districtCode=district,
-                                             state_name = state_name.get("stateNameEnglish"),
-                                             district_name = district_name.get("districtNameEnglish"))  
-    print(summery)
-    fetch_and_save_data.delay(state, district)
-    if 'state' in request.session:
-            logger.info("state %s deleting after fetching is done ", request.session['state'])
-            del request.session['state']
-            logger.info("state deleted after fetching is done ")
-    if 'district' in request.session:
-            logger.info("district %s deleting after fetching is done",request.session['district'])
-            del request.session['district']
-            logger.info("district deleted after fetching is done ")
+    # checking if the district chosen is already in a task or if its pending 
+    district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
+                                                  districtCode = district) 
+    completed_phase = PhaseModel.objects.filter(phase = "Completed").first() # pylint: disable=maybe-no-member
+    incomplete_status = district_status.exclude(phase=completed_phase)
+    print(incomplete_status.values('district_name','phase_id'))
+    if incomplete_status.exists():
+        # if yes the task is not started
+        messages.warning(request, "The District is already processing")
+    else:   
+        user_id = request.user.id
+        fetch_and_save_data.delay(state, district,user_id)
+        # deleting previously saved state and district for the next process
+        if 'state' in request.session:
+                logger.info("state %s deleting after fetching is done ", request.session['state'])
+                del request.session['state']
+                logger.info("state deleted after fetching is done ")
+        if 'district' in request.session:
+                logger.info("district %s deleting after fetching is done",request.session['district'])
+                del request.session['district']
+                logger.info("district deleted after fetching is done ")
+        messages.success(request, "The Processing for the requested data has begun...")
+        # if 'task_message' in request.session:
+        #     messages.success(request, request.session.pop('task_message'))
+        
     return HttpResponseRedirect(reverse('display'))
 
 
@@ -114,15 +122,17 @@ def send_json_response(request):
                         subdistrict_code,
                          village_code)
             if not state_code or not district_code:
+                # if state or district is not found we return a error 
                 logger.error("state or district not found")
                 return JsonResponse({'error': 'Missing required parameters'}, status=400)
 
             places = []
             if village_code:
                 logger.info("random data generation started")
+                # generating random data
                 places = generate_random_places(random.randint(0, 1))
 
-
+            print(places)
             return JsonResponse({'places': places}, status=200)
         
         else:
@@ -141,11 +151,11 @@ def send_json_response(request):
 def fetch_screen(request):
     '''fetch view'''
     logger.info("fetch screen called")
-
     form = LocationForm(request.POST or None)
     context = {}
     # deleting the previous catagory used by the user we we can set a new one when searching 
     if 'catagory' in request.session:
+            # deleting previously saved category
             logger.info("deleting category before fetching if any")
             del request.session['catagory']
     if request.method == 'POST':
@@ -158,16 +168,18 @@ def fetch_screen(request):
         request.session['state'] = state
         request.session['district'] = district
         logger.info("session data stored")
+        # redirecting to the fetch function view
         fetch_function(request)
         # return render(request,'temp.html')
         return HttpResponseRedirect(reverse('display'))
+    # displaying last 10 districts loaded and thier status
     summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
                                                                            'district_name',
                                                                            'phase__phase')[:10][::-1]
     print(summeries)
     context['summeries'] = summeries
-    context['page_name'] = "Fetch    Page Form"
+    context['page_name'] = "Fetch Page Form"
     context['form'] = form
     return render(request, 'frontend/fetch.html', context)
 
@@ -279,7 +291,7 @@ def get_details(request):
     district_code = request.GET.get('districtCode')
     district_name = request.GET.get('districtNameEnglish')
     state_name = request.GET.get('stateNameEnglish')
-    print(state_name, district_name)
+    # print(state_name, district_name)
     logger.info("get_details called with %s, %s ",state_name , district_name)
     # print(state_name, district_name)
     all_catagory_id = CatagoryModel.objects.filter(catagory="all").first().id # pylint: disable=maybe-no-member
@@ -287,6 +299,7 @@ def get_details(request):
         catagoryChosen = request.session['catagory']
         logger.info("categoryChosen from session %s", {catagoryChosen})
         catagory_id = CatagoryModel.objects.get(pk=catagoryChosen).id # pylint: disable=maybe-no-member
+        catagory__catagory = CatagoryModel.objects.get(pk=catagoryChosen).catagory # pylint: disable=maybe-no-member
     else:
         catagory_id = CatagoryModel.objects.filter(catagory="all").first().id # pylint: disable=maybe-no-member
         logger.info("category not chosen so displaying all")
@@ -301,30 +314,32 @@ def get_details(request):
             ).annotate(
                 count=Sum('count')
             )   
-        for detail in details: 
-            detail.update({'district_name': district_name,'state_name': state_name })
+        # for detail in details: 
+        #     detail.update({'district_name': district_name,'state_name': state_name })
         
         logger.info("category vise data displayed")
     else:
         details = CountModel.objects.filter(   # pylint: disable=maybe-no-member
             stateCode=state_code, 
             districtCode=district_code,
-            catagory = catagory_id
+            catagory__catagory = catagory__catagory,
             ).values(
                 'stateCode', 
                 'districtCode',
-                'catagory__catagory'
+                'catagory__catagory',
+                'catagory__subCatagory'
             ).annotate(
                 count=Sum('count')
-            )
-        for detail in details:
-            detail.update({'district_name': district_name,'state_name': state_name })
-        # print(details)
+            ).exclude(catagory__subCatagory__isnull=True)
+        # for detail in details:
+        #     detail.update({'district_name': district_name,'state_name': state_name })
+        print(details)
         logger.info("category all data displayed")
-    print(details)
+    # print(details)
     data = list(details)
+    print(details)
     request.session['data'] = data
-    print(data)
+    # print(data)
     return JsonResponse(data, safe=False)  
 
 def download_csv(request):
@@ -335,14 +350,13 @@ def download_csv(request):
     response['Content-Disposition'] = "attachment;filename=export.csv"
     # the csv writer
     writer = csv.writer(response)
-    field_names = ['stateCode', 'districtCode', 'category','count']
+    field_names = ['category','count']
     # Write a first row with header information
     writer.writerow(field_names)
     # Write data rows
     for obj in data:
-        print(obj)
-        writer.writerow([obj.get('stateCode'), obj.get('districtCode'),
-                         obj.get('catagory__catagory'), obj.get('count')])
+        # print(obj)
+        writer.writerow([obj.get('catagory__catagory'), obj.get('count')])
     return response
 
 def load_districts(request):

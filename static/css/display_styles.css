@@ -1,0 +1,31 @@
+.container {
+    margin: auto;
+  }          
+body{ margin:0 auto; }
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #fff;
+    z-index: 1000;
+}
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+.alert {
+    z-index: 10; /* Ensure the alert is on top */
+}
+table {
+    border: 1px solid;
+  }

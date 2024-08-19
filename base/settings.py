@@ -206,15 +206,19 @@ LOGGING = {
 
 
 # celery settings
+
+CELERY_TASK_ROUTES = {
+    'strategicbi.tasks.fetch_and_save_data': {'queue': 'data_tasks'},
+}
+
 CELERY_TIMEZONE = "Asia/Kolkata"
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_EXTENDED = True
 CELERYD_CONCURRENCY = 4  
-CELERYD_TASK_TIME_LIMIT = 30  # Set a task time limit to prevent long-running tasks
 CELERYD_LOG_FORMAT = '[%(asctime)s: %(levelname)s/%(processName)s] %(message)s'
 CELERYD_LOG_FILE = 'celery.log'
 CELERYBEAT_LOG_FILE = 'celerybeat.log'
-CELERYD_POOL = 'gevent'  # Use the gevent pool for I/O-bound tasks
-CELERYD_PREFETCH_MULTIPLIER = 4  # Control the number of tasks prefetched by the worker
-CELERYD_MAX_TASKS_PER_CHILD = 100  # Limit the number of tasks per worker child process
+CELERYD_POOL = 'gevent'  
+CELERYD_PREFETCH_MULTIPLIER = 4  
+CELERYD_MAX_TASKS_PER_CHILD = 100  
