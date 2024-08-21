@@ -19,7 +19,7 @@
       {% endfor %}  
   </div>
 {% endif %}
-<p class="fs-1 mt-4">{{ page_name }}</p>
+<p class="fs-1 mt-4 text-light">{{ page_name }}</p>
 <!-- <form method="POST">
   {% csrf_token %}
   <div class="mb-3">
@@ -44,17 +44,17 @@
      
     <!-- <label for="id_state" class="form-label">State</label> -->
     <div class="col-md-2 mb-3">
-      <label for="#id_state">State : </label>
+      <label for="#id_state" class="text-light">State : </label>
       {{ form.state }}
     </div>
     <!-- <label for="id_district" class="form-label">District</label> -->
     <div class="col-md-2 mb-3">
-      <label for="#id_district">District : </label>
+      <label for="#id_district" class="text-light">District : </label>
       {{ form.district }}
     </div>
     <!-- <label for="id_catagory" class="form-label">Category</label> -->
     <div class="col-md-2 mb-3">
-      <label for="#id_catagory">Category : </label>
+      <label for="#id_catagory" class="text-light">Category : </label>
       {{ form.catagory }}
     </div>
     <div class="col-md-2 mb-3" style="margin-top: 23px;">
@@ -62,13 +62,13 @@
     </div>
   </div>
 </form>
-{% if messages %}
+<!-- {% if messages %}
     <ul>
         {% for message in messages %}
             <li>{{ message }}</li>
         {% endfor %}
     </ul>
-{% endif %}
+{% endif %} -->
 
 {% if message %}
   <p>{{ message }}</p>
@@ -76,32 +76,39 @@
 
 {% if summeries %}
 <table class="table table-bordered table-hover mt-4">
-  <tr>
-    <th scope="col">State</th>
-    <th scope="col">District</th>
-    <th scope="col">Fetching Status</th>
-    <th scope="col">Extraction Status</th>
-    <th scope="col">Aggrigation Status</th>
-    <!-- <th scope="col">Last Updated</th> -->
-
+  <tr class="header-row">
+    <th class="text-light" scope="col">State</th>
+    <th class="text-light" scope="col">District</th>
+    <th class="text-light" scope="col">Fetching Status</th>
+    <th class="text-light" scope="col">Extraction Status</th>
+    <th class="text-light" scope="col">Aggrigation Status</th> 
   </tr>
   
   {% for summery in summeries %}
       <tr>
-        <td scope="row">{{ summery.state_name }}</td>
-        <td>{{ summery.district_name }}</td>
-        <td>{{ summery.fetch_status }}</td>
-        <td>{{ summery.extraction_status }}</td>
-        <td>{{ summery.aggrigation_status }}</td>
+        <td class="text-light" scope="row">{{ summery.state_name }}</td>
+        <td class="text-light">{{ summery.district_name }}</td>
+        <td class="text-light">{{ summery.fetch_status }}</td>
+        <td class="text-light">{{ summery.extraction_status }}</td>
+        <td class="text-light">{{ summery.aggrigation_status }}</td>
       </tr>
   {% endfor %}
   </ul>
 {% else %}
-<div class="mt-4" style="display: flex; justify-content: flex-start; align-items: flex-start; height: 100vh; padding-left: 20px; padding-top: 20px;">
-  <div style="font-size: 48px; font-weight: bold; text-align: left;">
-      No District in Processes
-  </div>
-</div>
+<table class="empty-table mt-4">
+  <tr class="header-row">
+    <th class="text-light" scope="col">State</th>
+    <th class="text-light" scope="col">District</th>
+    <th class="text-light" scope="col">Fetching Status</th>
+    <th class="text-light" scope="col">Extraction Status</th>
+    <th class="text-light" scope="col">Aggrigation Status</th> 
+  </tr>
+  <tr class="message-row">
+    <td colspan="5">
+      <div class="message text-light">No data available.</div>
+    </td>
+</tr>
+</table>
 {% endif %}
 
 <!-- {% if summeries %}

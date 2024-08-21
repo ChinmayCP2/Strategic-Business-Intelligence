@@ -49,7 +49,7 @@ def home(request):
             # if district data is present display view is loaded
             logger.info("The district data found so redirected to display")
             # time.sleep(3)
-            return HttpResponseRedirect(reverse('home'))
+            return HttpResponseRedirect(reverse('fetch'))
         else:
             # sending user a message if he wishes to fetch the district data 
             logger.info("The district data not found so redirected to fetch message")
@@ -125,7 +125,7 @@ def fetch_function(request):
         messages.success(request, "The Processing for the requested data has begun...")
         # if 'task_message' in request.session:
         #     messages.success(request, request.session.pop('task_message'))
-    return HttpResponseRedirect(reverse('display'))
+    return HttpResponseRedirect(reverse('fetch'))
 
 
 @csrf_exempt
@@ -192,7 +192,7 @@ def fetch_screen(request):
         fetch_function(request)
         # return render(request,'temp.html')
         # time.sleep(3)
-        return HttpResponseRedirect(reverse('home'))
+        return HttpResponseRedirect(reverse('fetch'))
     # displaying last 10 districts loaded and thier status
     summeries = SummeryModel.objects.filter(~Q(aggrigation_status = "Completed")).order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
@@ -232,7 +232,7 @@ def display_view(request):
         catagory = data.get('catagory')
         request.session['catagory'] = catagory
         
-    Paging = Paginator(updated_locations, 12)
+    Paging = Paginator(updated_locations, 8)
     page_number = request.GET.get('page')
     locations = Paging.get_page(page_number)
     logger.info("Pagination is implemented")

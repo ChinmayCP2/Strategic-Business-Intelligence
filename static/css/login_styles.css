@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300');
 
-body {
-  background: #76b852; /* fallback for old browsers */
-  background: rgb(141,194,111);
-  background: linear-gradient(90deg, rgb(199, 199, 199) 0%, rgb(201, 201, 201) 50%);
+body{ 
+  margin:0 auto;
+  background: linear-gradient(90deg, rgb(71, 71, 71) 0%, rgb(71, 71, 71) 50%);
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
 }
 
 .login-page {

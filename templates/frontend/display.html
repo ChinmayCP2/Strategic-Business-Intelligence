@@ -11,13 +11,13 @@
     {% if messages %}
         <div class="container mt-3">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-light" role="alert">
+                    {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
     <div class="container">
         <!-- <form method="post" class="form-inline text-center">
             {% csrf_token %}
@@ -34,24 +34,29 @@
         <div>
 
         </div>
-        <div class="container">
+        <div class="container pt-5">
             <div class="row justify-content-center">
               <div class="col-md-12">
                 <div class="form-container">
-                  <label class="p-1">State:</label>
-                  <form id="stateForm" method="post" class="form-inline" style="display: inline-block; width: 20%">
-                    {% csrf_token %}
-                    <div  class="form-group p-1">
-                      {{ state_form.state }}
+                    <div class="d-inline">
+                        <label class="p-1 text-light">State:</label>
+                        <form id="stateForm" method="post" class="form-inline" style="display: inline-block; width: 20%">
+                            {% csrf_token %}
+                            <div  class="form-group p-1">
+                            {{ state_form.state }}
+                            </div>
+                        </form>
                     </div>
-                  </form>
-                  <label class="p-1">Category:</label>
-                  <form id="catagoryForm" method="post" class="form-inline" style="display: inline-block; width: 20%">
-                    {% csrf_token %}
-                    <div class="form-group p-1">
-                      {{ catagory_form.catagory }}
-                    </div>
-                  </form>
+                  <div class="d-inline">
+                    <label class="p-1 text-light">Category:</label>
+                        <form id="catagoryForm" method="post" class="form-inline" style="display: inline-block; width: 20%">
+                            {% csrf_token %}
+                            <div class="form-group p-1">
+                            {{ catagory_form.catagory }}
+                            </div>
+                        </form>
+                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -60,13 +65,13 @@
     
         <br>
         <div class="px-6 m-2">
-            <table class="table table-bordered table-hover text-light ">
+            <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>State Code</th>
-                        <th>District Code</th>
-                        <th>Details</th>
-                        <th>Process Details</th>
+                        <th class="text-light">State Code</th>
+                        <th class="text-light">District Code</th>
+                        <th class="text-light">Category Details</th>
+                        <th class="text-light">Process Details</th>
                     </tr>
                 </thead>
                 
@@ -74,15 +79,35 @@
                     {% if distinct_locations %}
                     {% for location in distinct_locations %}
                     <tr>
-                        <td>{{ location.stateNameEnglish }}</td>
-                        <td>{{ location.districtNameEnglish }}</td>
+                        <td class="text-light">{{ location.stateNameEnglish }}</td>
+                        <td class="text-light">{{ location.districtNameEnglish }}</td>
                         <!-- <td>{{ location.state_name }}</td>
                         <td>{{ location.district_name }}</td> -->
                         <td>
-                            <a href="#" class="btn btn-info" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">Category Details</a>
+                            <!-- <a href="#" class="btn btn-info text-light" 
+                                onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">
+                                View
+                            </a> -->
+                            <button type="button" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')" class="btn btn-secondry text-light border-light my-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"></path>
+                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"></path>
+                                </svg>
+                                View
+                            </button>
                         </td>
                         <td>
-                            <a href="#" class="btn btn-info" onclick="showProcessingPopup('{{ location.stateCode }}', '{{ location.districtCode }}')">Processing Details</a>
+                            <button type="button" onclick="showProcessingPopup('{{ location.stateCode }}', '{{ location.districtCode }}')" class="btn btn-secondry text-light border-light my-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"></path>
+                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"></path>
+                                </svg>
+                                View
+                            </button>
+                            <!-- <a href="#" 
+                            class="btn btn-info text-light" 
+                            onclick="showProcessingPopup('{{ location.stateCode }}', '{{ location.districtCode }}')">
+                            View </a> -->
                         </td>
                     </tr>
                     {% endfor %}
@@ -91,7 +116,7 @@
             </table>
         </div>
         {% if message %}
-            <p class="text-center">{{message}}</p> 
+            <p class="text-center text-light">{{message}}</p> 
         {% endif %}
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
@@ -152,18 +177,18 @@
                 <table id="detailsTable" border="1" class="table table-bordered table-striped ">
                     <thead>
                         <tr>
-                            <th>State</th>
-                            <th>District</th>
-                            <th>Category</th>`;
+                            <th class="text-light">State</th>
+                            <th class="text-light">District</th>
+                            <th class="text-light">Category</th>`;
 
             // Check if any item has a subcategory to decide whether to add the SubCategory column
             const hasSubCategory = data.some(item => item.catagory__subCatagory);
 
             if (hasSubCategory) {
-                tableHTML += `<th>SubCategory</th>`;
+                tableHTML += `<th class="text-light">SubCategory</th>`;
             }
 
-            tableHTML += `<th>Count</th>
+            tableHTML += `<th class="text-light">Count</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -171,15 +196,15 @@
             // Generate table rows
             data.forEach(item => {
                 tableHTML += `<tr>
-                                <td>${stateNameEnglish}</td>
-                                <td>${districtNameEnglish}</td>
-                                <td>${item.catagory__catagory}</td>`;
+                                <td class="text-light">${stateNameEnglish}</td>
+                                <td class="text-light">${districtNameEnglish}</td>
+                                <td class="text-light">${item.catagory__catagory}</td>`;
                 
                 if (hasSubCategory) {
-                    tableHTML += `<td>${item.catagory__subCatagory || ''}</td>`;
+                    tableHTML += `<td class="text-light">${item.catagory__subCatagory || ''}</td>`;
                 }
 
-                tableHTML += `<td>${item.count}</td>
+                tableHTML += `<td class="text-light">${item.count}</td>
                             </tr>`;
             });
 
@@ -213,17 +238,17 @@
                 <table id="detailsTable" border="1" class="table table-bordered table-striped ">
                     <thead>
                         <tr>
-                            <th>Fetching Time</th>
-                            <th>Extraction Time</th>
-                            <th>Aggrigation Time</th>
-                            <th>Total Time</th>
+                            <th class="text-light">Fetching Time</th>
+                            <th class="text-light">Extraction Time</th>
+                            <th class="text-light">Aggrigation Time</th>
+                            <th class="text-light">Total Time</th>
                         </tr>
                     </thead>
                     <tbody>
-                            <td>${context.fetch_time}</td>
-                            <td>${context.extraction_time}</td>
-                            <td>${context.aggrigation_time}</td>
-                            <td>${context.aggrigation_time + context.fetch_time + context.extraction_time}</td>
+                            <td class="text-light">${context.fetch_time}</td>
+                            <td class="text-light">${context.extraction_time}</td>
+                            <td class="text-light">${context.aggrigation_time}</td>
+                            <td class="text-light">${context.aggrigation_time + context.fetch_time + context.extraction_time}</td>
                     </tbody>`;
 
             
@@ -236,6 +261,7 @@
         }
         function ESCclose(evt) {
             if (evt.keyCode == 27){
+                document.getElementById('popup').style.display = 'none';
                 document.getElementById('process_time_popup').style.display = 'none';
                 document.getElementById('overlay').style.display = 'none'; 
             }

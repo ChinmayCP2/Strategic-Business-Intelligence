@@ -1,8 +1,9 @@
 .container {
     margin: auto;
   }          
-body{ margin:0 auto;
-    background: linear-gradient(90deg, rgb(222, 235, 235) 0%, rgb(0, 250, 242) 50%);
+body{ 
+    margin:0 auto;
+    background: linear-gradient(90deg, rgb(71, 71, 71) 0%, rgb(71, 71, 71) 50%);
     font-family: "Roboto", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -45,11 +46,10 @@ body{ margin:0 auto;
 }
 tr td {
     border: 1px solid;
-    background: linear-gradient(90deg, rgb(188, 190, 185) 10%, rgb(188, 190, 185) 50%);
+    background: linear-gradient(90deg, rgb(65, 65, 65) 0%, rgb(65, 65, 65) 50%);
     font-family: "Roboto", sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    border: none;
+    -moz-osx-font-smoothing: grayscale; 
   }
 
 td{
@@ -57,17 +57,28 @@ td{
     text-align: center;
 }
 
+table.table-bordered{
+  border:1px solid rgb(200, 200, 200);
+  margin-top:20px;
+}
+table.table-bordered > thead > tr > th{
+  border:1px solid rgb(200, 200, 200);
+}
+table.table-bordered > tbody > tr > td{
+  border:1px solid rgb(200, 200, 200);
+}
 
 th{
+    background: linear-gradient(90deg, rgb(80, 80, 80) 0%, rgb(80, 80, 80) 50%);
     padding: 5px;
     text-align: center;
 }
-.navar{
+/* .navar{
     background: linear-gradient(90deg, rgb(41, 117, 118) 10%, rgb(41, 117, 118) 50%);
     font-family: "Roboto", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
+} */
 
 .icon-100 { font-size: 100px; }
 

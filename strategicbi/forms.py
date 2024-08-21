@@ -16,7 +16,7 @@ class StateForm(forms.Form):
 
 class CategoryForm(forms.Form):
     '''category form for display'''
-    catagory = forms.ModelChoiceField(queryset=CatagoryModel.objects.all().distinct('catagory').exclude(catagory = "other   "),  # pylint: disable=maybe-no-member
+    catagory = forms.ModelChoiceField(queryset=CatagoryModel.objects.all().distinct('catagory').exclude(catagory = "other"),  # pylint: disable=maybe-no-member
         initial= CatagoryModel.objects.get(catagory="all"), # pylint: disable=maybe-no-member
         widget=forms.Select(attrs={
             "class": "form-select",
