@@ -44,19 +44,24 @@ class SummeryModel(TimeStampedModel):
     # phase = models.ForeignKey(PhaseModel, blank=True, on_delete=models.SET_NULL, null=True)
     STATUS_CHOICES = (
     ("Completed", 'Completed'),
-    ("Pending", 'Pending'),
-    ("Started", 'Started'),
+    ("Not started", 'Not started'),
+    ("In-Progress", 'In-Progress'),
     ("Failed", "Failed")
     )
-    fetch_status = models.CharField(default="Pending", choices=STATUS_CHOICES, max_length = 200)
-    extraction_status = models.CharField(default="Pending", choices=STATUS_CHOICES, max_length = 200)
-    aggrigation_status = models.CharField(default="Pending", choices=STATUS_CHOICES, max_length = 200)
+    fetch_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
+    extraction_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
+    aggrigation_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
+    fetch_start_time =models.DateTimeField(null=True, blank=True)
+    fetch_end_time = models.DateTimeField(null=True, blank=True)
+    extraction_start_time = models.DateTimeField(null=True, blank=True)
+    extraction_end_time = models.DateTimeField(null=True, blank=True)
+    aggrigation_start_time = models.DateTimeField(null=True, blank=True)
+    aggrigation_end_time = models.DateTimeField(null=True, blank=True)
     districtCode = models.IntegerField(null=True, blank=True)
     district_name = models.CharField(max_length=200, null=True, blank=True)
     state_name = models.CharField(max_length=200, null=True, blank=True)
-    stateCode = models.IntegerField( null=True, blank=True)
+    stateCode = models.IntegerField(null=True, blank=True)
     
-
 
 class DataModel(TimeStampedModel):
     '''data model'''

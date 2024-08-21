@@ -14,7 +14,16 @@ class StateForm(forms.Form):
                                     widget=forms.Select(attrs={
                                     "class": "form-select","id": "id_state"})) # pylint: disable=maybe-no-member
 
-    
+class CategoryForm(forms.Form):
+    '''category form for display'''
+    catagory = forms.ModelChoiceField(queryset=CatagoryModel.objects.all().distinct('catagory').exclude(catagory = "other   "),  # pylint: disable=maybe-no-member
+        initial= CatagoryModel.objects.get(catagory="all"), # pylint: disable=maybe-no-member
+        widget=forms.Select(attrs={
+            "class": "form-select",
+            "id": "id_catagory",
+        })
+    )
+
 class LocationForm(forms.Form):
     '''Select location form'''
     state = forms.ModelChoiceField(

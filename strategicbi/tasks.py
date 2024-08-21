@@ -2,24 +2,19 @@ import os
 import json
 import logging
 import requests
+import datetime
 from celery import shared_task
 from django.http import JsonResponse
 from django.db.models import Count
 from dotenv import load_dotenv
-from django.core.cache import cache
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.messages import get_messages
-from django.core.cache import cache
-from django.contrib.sessions.models import Session
-from lgd.models import SubDistrictModel, VillageModel, StateModel, DistrictModel
-from .models import JSONDataModel, DataModel, CatagoryModel, CountModel, SummeryModel, PhaseModel
+from lgd.models import SubDistrictModel, VillageModel
+from .models import JSONDataModel, DataModel, CatagoryModel, CountModel, SummeryModel
 
 load_dotenv()
 logger = logging.getLogger('strategicbi')
 
 @shared_task
-def fetch_and_save_data(state, district,user_id):
+def fetch_and_save_data(state, district):
     '''fetching and save data function'''
     # user = User.objects.get(id=user_id)
     # district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
@@ -34,8 +29,11 @@ def fetch_and_save_data(state, district,user_id):
     SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
                                             districtCode=district) \
                             .update(fetch_status = "Completed",
-                                    extraction_status = "Started",
-                                    aggrigation_status = "Pending")
+                                    extraction_status = "In-Progress",
+                                    aggrigation_status = "Not Started",
+                                    fetch_end_time = datetime.datetime.now(), 
+                                    extraction_start_time = datetime.datetime.now()
+                                    )
     print(all_places)
     logger.info('fetch api done starting json save')
     places = save_json(all_places)
@@ -45,12 +43,20 @@ def fetch_and_save_data(state, district,user_id):
                                             districtCode=district) \
                             .update(fetch_status = "Completed",
                                     extraction_status = "Completed",
-                                    aggrigation_status = "Started")
+                                    aggrigation_status = "In-Progress",
+                                    extraction_end_time = datetime.datetime.now(),
+                                    aggrigation_start_time = datetime.datetime.now()
+                                    )
     print(places)
     logger.info('counting')
     count_places_by_catagory(state,district)
     SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
-                                            districtCode=district).delete()                            
+                                            districtCode=district) \
+                            .update(fetch_status = "Completed",
+                                    extraction_status = "Completed",
+                                    aggrigation_status = "Completed",
+                                    aggrigation_end_time = datetime.datetime.now()
+                                    )            
     # message = "The Processing for the requested data has begun..."
     return True
     # return False

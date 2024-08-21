@@ -10,6 +10,7 @@ urlpatterns = [
     path('fetch-function/', views.fetch_function, name = "fetch-function"),
     path('display/', views.display_view, name='display'),
     path('display/get_details/', views.get_details, name='get_details'),
+    path('display/get_process_time_details/', views.get_processing_time_details, name='get_process_time_details'),
     path('display/<int:catagory>/', views.display_view, name='display_view'),
     path('display/download-csv/', views.download_csv, name='download-csv'),
     # path("view-all/",views.view_all, name="view-all"),

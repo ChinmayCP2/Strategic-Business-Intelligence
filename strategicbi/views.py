@@ -3,6 +3,7 @@ import csv
 import json
 import logging
 import random
+import datetime
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -13,11 +14,12 @@ from django.db.models import Sum
 from django.db import connection
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.db.models import Q
 from dotenv import load_dotenv
 # from django.contrib.messages import get_messages
 # from django.core.cache import cache
 from lgd.models import DistrictModel, StateModel
-from .forms import LocationForm, StateForm
+from .forms import LocationForm, StateForm, CategoryForm
 from .models import DataModel, CatagoryModel, CountModel, SummeryModel
 from .generate import generate_random_places
 from .tasks import fetch_and_save_data
@@ -46,7 +48,8 @@ def home(request):
         if DataModel.objects.filter(stateCode = state, districtCode = district).exists(): # pylint: disable=maybe-no-member
             # if district data is present display view is loaded
             logger.info("The district data found so redirected to display")
-            return HttpResponseRedirect(reverse('display'))
+            # time.sleep(3)
+            return HttpResponseRedirect(reverse('home'))
         else:
             # sending user a message if he wishes to fetch the district data 
             logger.info("The district data not found so redirected to fetch message")
@@ -56,7 +59,7 @@ def home(request):
                         request.session['district'])
             return HttpResponseRedirect(reverse('fetch-message'))
     # displaying last 10 districts loaded and thier status
-    summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
+    summeries = SummeryModel.objects.filter(~Q(aggrigation_status = "Completed")).order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
                                                                            'district_name',
                                                                            'fetch_status',
@@ -90,26 +93,26 @@ def fetch_function(request):
 
     # checking if the district chosen is already in a task or if its pending 
     district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
-                                                  districtCode = district) 
+                                                  districtCode = district)
 
     print(district_status.values('district_name'))
     if district_status.exists():
         # if yes the task is not started
-        SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
-                                     districtCode=district).update(fetch_status = "Failed",
-                                     extraction_status = "Failed",
-                                     aggrigation_status = "Failed")
+        # SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
+        #                              districtCode=district).update(fetch_status = "Failed",
+        #                              extraction_status = "Failed",
+        #                              aggrigation_status = "Failed")
         messages.warning(request, "The District is already processing")
     else:
         SummeryModel.objects.create(stateCode=state, # pylint: disable=maybe-no-member
                                         districtCode=district,
                                         district_name = district_name.get("districtNameEnglish"),
-                                        state_name = state_name.get("stateNameEnglish") , 
-                                        fetch_status = "Started",
-                                        extraction_status = "Pending",
-                                        aggrigation_status = "Pending")
-        user_id = request.user.id
-        fetch_and_save_data.delay(state, district,user_id)
+                                        state_name = state_name.get("stateNameEnglish"), 
+                                        fetch_status = "In-Progress",
+                                        extraction_status = "Not Started",
+                                        aggrigation_status = "Not Started",
+                                        fetch_start_time = datetime.datetime.now())
+        fetch_and_save_data.delay(state, district)
         # deleting previously saved state and district for the next process
         if 'state' in request.session:
                 logger.info("state %s deleting after fetching is done ", request.session['state'])
@@ -122,7 +125,6 @@ def fetch_function(request):
         messages.success(request, "The Processing for the requested data has begun...")
         # if 'task_message' in request.session:
         #     messages.success(request, request.session.pop('task_message'))
-        
     return HttpResponseRedirect(reverse('display'))
 
 
@@ -189,9 +191,10 @@ def fetch_screen(request):
         # redirecting to the fetch function view
         fetch_function(request)
         # return render(request,'temp.html')
-        return HttpResponseRedirect(reverse('display'))
+        # time.sleep(3)
+        return HttpResponseRedirect(reverse('home'))
     # displaying last 10 districts loaded and thier status
-    summeries = SummeryModel.objects.all().order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
+    summeries = SummeryModel.objects.filter(~Q(aggrigation_status = "Completed")).order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
                                                                            'state_name',
                                                                            'district_name',
                                                                            'fetch_status',
@@ -208,6 +211,7 @@ def fetch_screen(request):
 def display_view(request):
     '''To display distict districts and provide a option to view count''' 
     form = StateForm(request.POST or None)
+    catagory_form = CategoryForm(request.POST or None)
     context = {}
     if request.method == 'POST' and request.POST.get('state'):
         data = request.POST
@@ -218,13 +222,16 @@ def display_view(request):
                                        'districtCode','districtNameEnglish',
                                          'created_at'], row)) for row in rows]
     else:
-
-
         logger.info("get district locations query ran for all states")
         rows = custom_sql_for_default_display()
         updated_locations = [dict(zip(['stateCode', 'stateNameEnglish',
                                         'districtCode','districtNameEnglish',
                                           'created_at'], row)) for row in rows]
+    if request.method == 'POST' and request.POST.get('catagory'):
+        data = request.POST
+        catagory = data.get('catagory')
+        request.session['catagory'] = catagory
+        
     Paging = Paginator(updated_locations, 12)
     page_number = request.GET.get('page')
     locations = Paging.get_page(page_number)
@@ -237,7 +244,8 @@ def display_view(request):
         context = {
             'distinct_locations': locations,
         }
-    context['form'] = form
+    context['state_form'] = form
+    context['catagory_form'] = catagory_form
     return render(request, 'frontend/display.html', context)
 
 def custom_sql_for_default_display():
@@ -325,7 +333,7 @@ def get_details(request):
         logger.info("category not chosen so displaying all")
     if all_catagory_id == catagory_id:
         details = CountModel.objects.filter( # pylint: disable=maybe-no-member
-            stateCode=state_code, 
+            stateCode=state_code,
             districtCode=district_code
             ).values(
                 'stateCode', 
@@ -361,6 +369,26 @@ def get_details(request):
     request.session['data'] = data
     # print(data)
     return JsonResponse(data, safe=False)  
+
+@login_required(login_url='/login')
+def get_processing_time_details(request):
+    '''process details'''
+    state_code = request.GET.get('stateCode')
+    district_code = request.GET.get('districtCode')
+    logger.info("get_details called with %s, %s ",state_code , district_code)
+    district_summery = SummeryModel.objects.filter(stateCode = state_code, # pylint: disable=maybe-no-member
+                                                    districtCode = district_code).first()
+    fetch_time = district_summery.fetch_end_time - district_summery.fetch_start_time
+    extratcion_time = district_summery.extraction_end_time - district_summery.extraction_start_time
+    aggrigation_time = district_summery.aggrigation_end_time - district_summery.aggrigation_start_time
+    context = {
+        'aggrigation_time' : aggrigation_time.total_seconds(),
+        'fetch_time' : fetch_time.total_seconds(),
+        'extraction_time' : extratcion_time.total_seconds()
+    }
+    # print(extratcion_time.total_seconds())
+    return JsonResponse(context, safe=False)
+
 
 def download_csv(request):
     '''download csv function'''

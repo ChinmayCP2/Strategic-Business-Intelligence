@@ -6,15 +6,16 @@
 {% load static %}
 {% block content %} 
 {% include 'includes/navbar.html' %}
-<div class="container-fluid h-100">
-    <div class="row justify-content-center align-items-center h-100">
-      <div class="col-md-6 text-center">
-        <h1 class="display-4">District Not Fetched</h1>
-        <p class="lead">Would you like to fetch the district selected? it may take some time</p>
-        <a href="{% url 'fetch-function' %}">Fetch</a>
-        OR <a href="{% url 'display' %}">Go to display right away</a>
-      </div>
-    </div>
+<link rel="stylesheet" href="{% static 'css/fetch_message_styles.css' %}">
+<div class="container-fluid message-field h-100 d-flex justify-content-center align-items-center">
+  <div class="col-md-6 text-center">
+      <h1 class="display-4 font-stylish">District Not Fetched</h1>
+      <p class="lead">Would you like to fetch the district selected? It may take some time.</p>
+      <a href="{% url 'fetch-function' %}" class="btn btn-custom btn-primary">Fetch</a>
+      <span class="mx-2">OR</span>
+      <a href="{% url 'display' %}" class="btn btn-custom btn-secondary">Go to display right away</a>
   </div>
+</div>
+
 
 {% endblock %}

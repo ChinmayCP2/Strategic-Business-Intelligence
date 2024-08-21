@@ -31,28 +31,42 @@
                 </div>
             </div>
         </form> -->
-        <form method="post" class="form-inline text-center">
-            {% csrf_token %}
-            <div class="row justify-content-center mt-2">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        {{ form.state }}
+        <div>
+
+        </div>
+        <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-md-12">
+                <div class="form-container">
+                  <label class="p-1">State:</label>
+                  <form id="stateForm" method="post" class="form-inline" style="display: inline-block; width: 20%">
+                    {% csrf_token %}
+                    <div  class="form-group p-1">
+                      {{ state_form.state }}
                     </div>
-                    <button type="submit" class="btn btn-primary mt-4">Submit</button>
+                  </form>
+                  <label class="p-1">Category:</label>
+                  <form id="catagoryForm" method="post" class="form-inline" style="display: inline-block; width: 20%">
+                    {% csrf_token %}
+                    <div class="form-group p-1">
+                      {{ catagory_form.catagory }}
+                    </div>
+                  </form>
                 </div>
+              </div>
             </div>
-        </form>
-        
+          </div>
         <!-- <button  class="btn btn-link"><a href="{% url 'display' %}">Reset</a></button> -->
     
         <br>
         <div class="px-6 m-2">
-            <table class="table table-bordered table-hover ">
+            <table class="table table-bordered table-hover text-light ">
                 <thead>
                     <tr>
-                        <th >State Code</th>
+                        <th>State Code</th>
                         <th>District Code</th>
                         <th>Details</th>
+                        <th>Process Details</th>
                     </tr>
                 </thead>
                 
@@ -65,7 +79,10 @@
                         <!-- <td>{{ location.state_name }}</td>
                         <td>{{ location.district_name }}</td> -->
                         <td>
-                            <a href="#" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">View Details</a>
+                            <a href="#" class="btn btn-info" onclick="showPopup('{{ location.stateCode }}', '{{ location.districtCode }}','{{ location.stateNameEnglish }}','{{ location.districtNameEnglish }}')">Category Details</a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-info" onclick="showProcessingPopup('{{ location.stateCode }}', '{{ location.districtCode }}')">Processing Details</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -84,7 +101,7 @@
                 <li class="page-item disabled">
                   <a class="page-link" href="" tabindex="-1" aria-disabled="true">Previous</a>
                 </li>
-              {% endif %}   
+              {% endif %}
               {% if distinct_locations.paginator.num_pages %}
                 <li class="page-item"><a class="page-link" href="">Page {{ distinct_locations.number }} of {{ distinct_locations.paginator.num_pages }}</a></li>
               {% else %}
@@ -104,21 +121,7 @@
             <h2>Details</h2>
             <div id="tableContainer">
                 <!-- The dynamically generated table will be injected here -->
-            </div>
-            <!-- <table id="detailsTable" border="1" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>State</th>
-                        <th>District</th>
-                        <th>Category</th>
-                        <th>Count</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                </tbody>
-                
-            </table> -->
+            </div> 
             <a href="{% url 'download-csv' %}" class="m-2 link-dark link-underline link-underline-opacity-0" >
                 
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
@@ -127,6 +130,14 @@
                 </svg>
             </a>
             <button onclick="hidePopup()">Close</button>
+        </div>
+        <div class="process_time_popup" id="process_time_popup">
+            <h2>Details</h2>
+            <div id="process_time_table">
+                <!-- The dynamically generated table will be injected here -->
+            </div> 
+            <button onclick="hidePopup()">Close</button>
+        </div>
         </div>
     </div> 
 
@@ -185,13 +196,64 @@
         function hidePopup() {
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('popup').style.display = 'none';
+            document.getElementById('process_time_popup').style.display = 'none';
         }
         function ESCclose(evt) {
             if (evt.keyCode == 27){
                 document.getElementById('popup').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('process_time_popup').style.display = 'none'; 
+            }
+          }
+        function showProcessingPopup(stateCode, districtCode) {
+            fetch(`get_process_time_details/?stateCode=${stateCode}&districtCode=${districtCode}`)
+                .then(response => response.json())
+                .then(context => {
+            let tableHTML = `
+                <table id="detailsTable" border="1" class="table table-bordered table-striped ">
+                    <thead>
+                        <tr>
+                            <th>Fetching Time</th>
+                            <th>Extraction Time</th>
+                            <th>Aggrigation Time</th>
+                            <th>Total Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <td>${context.fetch_time}</td>
+                            <td>${context.extraction_time}</td>
+                            <td>${context.aggrigation_time}</td>
+                            <td>${context.aggrigation_time + context.fetch_time + context.extraction_time}</td>
+                    </tbody>`;
+
+            
+
+            // Set the generated table HTML to a container element
+            document.getElementById('process_time_table').innerHTML = tableHTML;
+                    document.getElementById('overlay').style.display = 'block';
+                    document.getElementById('process_time_popup').style.display = 'block';
+                });
+        }
+        function ESCclose(evt) {
+            if (evt.keyCode == 27){
+                document.getElementById('process_time_popup').style.display = 'none';
                 document.getElementById('overlay').style.display = 'none'; 
             }
           }
+    document.addEventListener("DOMContentLoaded", function() {
+        let selectElement = document.querySelector('#id_catagory'); // Replace 'attr' with the actual field name
+        selectElement.addEventListener('change', function() {
+            document.getElementById('catagoryForm').submit();
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        let selectElement = document.querySelector('#id_state'); // Replace 'attr' with the actual field name
+        selectElement.addEventListener('change', function() {
+            
+            document.getElementById('stateForm').submit();
+        });
+    });
+        
     </script>
 </body> 
 {% endblock %}
