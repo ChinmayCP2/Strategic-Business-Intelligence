@@ -240,15 +240,15 @@
                         <tr>
                             <th class="text-light">Fetching Time</th>
                             <th class="text-light">Extraction Time</th>
-                            <th class="text-light">Aggrigation Time</th>
+                            <th class="text-light">Aggregation Time</th>
                             <th class="text-light">Total Time</th>
                         </tr>
                     </thead>
                     <tbody>
-                            <td class="text-light">${context.fetch_time}</td>
-                            <td class="text-light">${context.extraction_time}</td>
-                            <td class="text-light">${context.aggrigation_time}</td>
-                            <td class="text-light">${context.aggrigation_time + context.fetch_time + context.extraction_time}</td>
+                            <td class="text-light">${context.fetch_time.toFixed(4)}</td>
+                            <td class="text-light">${context.extraction_time.toFixed(4)}</td>
+                            <td class="text-light">${context.aggrigation_time.toFixed(4)}</td>
+                            <td class="text-light">${(context.aggrigation_time + context.fetch_time + context.extraction_time).toFixed(4)}</td>
                     </tbody>`;
 
             

@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # path('get-json/', views.get_json, name = "get-json"),
-    path('home/', views.home, name = "home"),
+    # path('home/', views.home, name = "home"),
     path('send-json/', views.send_json_response, name='send-json'),
     path('fetch/', views.fetch_screen, name = "fetch"),
     path('fetch-message/', views.fetch_message, name = "fetch-message"),

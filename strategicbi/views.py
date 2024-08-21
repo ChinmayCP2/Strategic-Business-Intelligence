@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 # from django.core.cache import cache
 from lgd.models import DistrictModel, StateModel
 from .forms import LocationForm, StateForm, CategoryForm
-from .models import DataModel, CatagoryModel, CountModel, SummeryModel
+from .models import CatagoryModel, CountModel, SummeryModel
 from .generate import generate_random_places
 from .tasks import fetch_and_save_data
 
@@ -28,48 +28,48 @@ from .tasks import fetch_and_save_data
 load_dotenv()
 logger = logging.getLogger("strategicbi")
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='/login')
-def home(request):
-    '''Home view'''
-    form = LocationForm(request.POST or None)
-    logger.info("displayed the form")
-    context = {}
-    if 'catagory' in request.session:
-        # deleting previously saved category
-        del request.session['catagory']
-        logger.info("category saved in the session")
-    if request.method == 'POST':
-        logger.info("Form submitted")
-        data = request.POST
-        state = data.get('state')
-        district = data.get('district')
-        request.session['catagory'] = data.get('catagory')
-        if DataModel.objects.filter(stateCode = state, districtCode = district).exists(): # pylint: disable=maybe-no-member
-            # if district data is present display view is loaded
-            logger.info("The district data found so redirected to display")
-            # time.sleep(3)
-            return HttpResponseRedirect(reverse('fetch'))
-        else:
-            # sending user a message if he wishes to fetch the district data 
-            logger.info("The district data not found so redirected to fetch message")
-            request.session['state'] = state
-            request.session['district'] = district
-            logger.info("redirect to fetch message %s and %s saved",request.session['state'],
-                        request.session['district'])
-            return HttpResponseRedirect(reverse('fetch-message'))
-    # displaying last 10 districts loaded and thier status
-    summeries = SummeryModel.objects.filter(~Q(aggrigation_status = "Completed")).order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
-                                                                           'state_name',
-                                                                           'district_name',
-                                                                           'fetch_status',
-                                                                           'extraction_status',
-                                                                           'aggrigation_status')[:10][::-1]
-    # print(summeries)
-    context['summeries'] = summeries
-    context['form'] = form
-    context['page_name'] = "Home Page Form"
-    return render(request, 'frontend/fetch.html', context)
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# @login_required(login_url='/login')
+# def home(request):
+#     '''Home view'''
+#     form = LocationForm(request.POST or None)
+#     logger.info("displayed the form")
+#     context = {}
+#     if 'catagory' in request.session:
+#         # deleting previously saved category
+#         del request.session['catagory']
+#         logger.info("category saved in the session")
+#     if request.method == 'POST':
+#         logger.info("Form submitted")
+#         data = request.POST
+#         state = data.get('state')
+#         district = data.get('district')
+#         request.session['catagory'] = data.get('catagory')
+#         if DataModel.objects.filter(stateCode = state, districtCode = district).exists(): # pylint: disable=maybe-no-member
+#             # if district data is present display view is loaded
+#             logger.info("The district data found so redirected to display")
+#             # time.sleep(3)
+#             return HttpResponseRedirect(reverse('fetch'))
+#         else:
+#             # sending user a message if he wishes to fetch the district data 
+#             logger.info("The district data not found so redirected to fetch message")
+#             request.session['state'] = state
+#             request.session['district'] = district
+#             logger.info("redirect to fetch message %s and %s saved",request.session['state'],
+#                         request.session['district'])
+#             return HttpResponseRedirect(reverse('fetch-message'))
+#     # displaying last 10 districts loaded and thier status
+#     summeries = SummeryModel.objects.filter(~Q(aggrigation_status = "Completed")).order_by('updated_at').values('updated_at', # pylint: disable=maybe-no-member
+#                                                                            'state_name',
+#                                                                            'district_name',
+#                                                                            'fetch_status',
+#                                                                            'extraction_status',
+#                                                                            'aggrigation_status')[:10][::-1]
+#     # print(summeries)
+#     context['summeries'] = summeries
+#     context['form'] = form
+#     context['page_name'] = "Home Page Form"
+#     return render(request, 'frontend/fetch.html', context)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='/login')
@@ -89,12 +89,9 @@ def fetch_function(request):
         # print(state)
     # print(state_name) 
     district_name = DistrictModel.objects.filter(pk=district).values('districtNameEnglish').first()  # pylint: disable=maybe-no-member
-        
-
     # checking if the district chosen is already in a task or if its pending 
     district_status = SummeryModel.objects.filter(stateCode = state, # pylint: disable=maybe-no-member
                                                   districtCode = district)
-
     print(district_status.values('district_name'))
     if district_status.exists():
         # if yes the task is not started

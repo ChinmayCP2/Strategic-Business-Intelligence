@@ -33,7 +33,7 @@ def sign_up(request):
             user = form.save()
             logger.info("registration form accepted")
             login(request, user)
-            return redirect('home')
+            return redirect('fetch')
     else:
         form =  RegistrationForm()
         logger.info("Displaying Registration form")
