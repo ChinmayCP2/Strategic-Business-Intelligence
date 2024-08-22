@@ -13,7 +13,7 @@ logger = logging.getLogger('lgd')
 @permission_required('auth_app.lgd_access')  
 def load_state(request):
     '''function to load the states'''
-    print('working')
+    # print('working')
     try:
         request_to_lgd = requests.post(os.getenv('STATE_ENDPOINT'), 
                           data=request.POST, timeout=100)
@@ -58,7 +58,7 @@ def load_district(request):
             DistrictModel.objects.bulk_create(district_instances, ignore_conflicts=True) # pylint: disable=maybe-no-member
             # print('district data saved')
         else:
-            print('district data not saved')
+            # print('district data not saved')
             logger.error('district Data not saved')
             return HttpResponse("district data not saved")
     logger.info('District Data saved')
@@ -104,7 +104,7 @@ def load_sub_district(request):
 @permission_required('auth_app.lgd_access')  
 def load_village(request):
     '''loads village data'''
-    print('working')
+    # print('working')
     # VillageModel.objects.all().delete() # pylint: disable=maybe-no-member
     subdistricts = SubDistrictModel.objects.all().distinct() # pylint: disable=maybe-no-member
     # print(subDistricts)

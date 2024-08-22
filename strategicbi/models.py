@@ -50,13 +50,13 @@ class SummeryModel(TimeStampedModel):
     )
     fetch_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
     extraction_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
-    aggrigation_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
+    aggregation_status = models.CharField(default="Not started", choices=STATUS_CHOICES, max_length = 200)
     fetch_start_time =models.DateTimeField(null=True, blank=True)
     fetch_end_time = models.DateTimeField(null=True, blank=True)
     extraction_start_time = models.DateTimeField(null=True, blank=True)
     extraction_end_time = models.DateTimeField(null=True, blank=True)
-    aggrigation_start_time = models.DateTimeField(null=True, blank=True)
-    aggrigation_end_time = models.DateTimeField(null=True, blank=True)
+    aggregation_start_time = models.DateTimeField(null=True, blank=True)
+    aggregation_end_time = models.DateTimeField(null=True, blank=True)
     districtCode = models.IntegerField(null=True, blank=True)
     district_name = models.CharField(max_length=200, null=True, blank=True)
     state_name = models.CharField(max_length=200, null=True, blank=True)
@@ -84,7 +84,7 @@ class DataModel(TimeStampedModel):
     # accessibilityOptions = models.JSONField()
 
 class CountModel(TimeStampedModel):
-    '''count aggrigation table'''
+    '''count aggregation table'''
     stateCode = models.IntegerField( null=True, blank=True)
     districtCode = models.IntegerField(null=True, blank=True, default=-1)
     subdistrictCode = models.IntegerField( null=True, blank=True, default=-1)

@@ -30,11 +30,11 @@ def fetch_and_save_data(state, district):
                                             districtCode=district) \
                             .update(fetch_status = "Completed",
                                     extraction_status = "In-Progress",
-                                    aggrigation_status = "Not Started",
+                                    aggregation_status = "Not Started",
                                     fetch_end_time = datetime.datetime.now(), 
                                     extraction_start_time = datetime.datetime.now()
                                     )
-    print(all_places)
+    # print(all_places)
     logger.info('fetch api done starting json save')
     places = save_json(all_places)
     logger.info('saving extracted data')
@@ -43,19 +43,19 @@ def fetch_and_save_data(state, district):
                                             districtCode=district) \
                             .update(fetch_status = "Completed",
                                     extraction_status = "Completed",
-                                    aggrigation_status = "In-Progress",
+                                    aggregation_status = "In-Progress",
                                     extraction_end_time = datetime.datetime.now(),
-                                    aggrigation_start_time = datetime.datetime.now()
+                                    aggregation_start_time = datetime.datetime.now()
                                     )
-    print(places)
+    # print(places)
     logger.info('counting')
     count_places_by_catagory(state,district)
     SummeryModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
                                             districtCode=district) \
                             .update(fetch_status = "Completed",
                                     extraction_status = "Completed",
-                                    aggrigation_status = "Completed",
-                                    aggrigation_end_time = datetime.datetime.now()
+                                    aggregation_status = "Completed",
+                                    aggregation_end_time = datetime.datetime.now()
                                     )            
     # message = "The Processing for the requested data has begun..."
     return True
@@ -176,7 +176,7 @@ def assign_category(places):
 
 def count_places_by_catagory(state, district):
     '''count function'''
-    print("counting started")
+    # print("counting started")
     annotated_data = DataModel.objects.filter(stateCode=state, # pylint: disable=maybe-no-member
                                                districtCode=district).values('catagory'). \
                                                 annotate(place_count=Count('id'))
